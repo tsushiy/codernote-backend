@@ -1,5 +1,7 @@
 # Codernote Backend
 
+Frontend: [codernote-frontend](https://github.com/tsushiy/codernote-frontend)
+
 ## Run API Server
 
 ```sh
@@ -15,21 +17,21 @@ go build
 ./crawler
 ```
 
-## API
+# API
 
-### Non-Auth API
+## Non-Auth API
 
-#### GET /problems?domain={domain}
+### GET /problems?domain={domain}
 
 問題の一覧を取得します
 
-##### Parameters
+#### Parameters
 
 Query
 
 - domain: "atcoder"
 
-##### Response
+#### Response
 
 ```json
 [
@@ -42,17 +44,17 @@ Query
 ]
 ```
 
-#### GET /contests?domain={domain}
+### GET /contests?domain={domain}
 
 コンテストの一覧を取得します
 
-##### Parameters
+#### Parameters
 
 Query
 
 - domain: "atcoder"
 
-##### Response
+#### Response
 
 ```json
 [
@@ -72,11 +74,11 @@ Query
 ]
 ```
 
-#### GET /notes
+### GET /notes
 
 公開されているノートの一覧を取得します
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -93,7 +95,7 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 ```json
 {
@@ -121,7 +123,7 @@ Request Body
 }
 ```
 
-### Auth API
+## Auth API
 
 A JWT must be included in the header of the request.
 
@@ -131,13 +133,13 @@ A JWT must be included in the header of the request.
 }
 ```
 
-#### GET /login
+### GET /login
 
 ログインします。
 
-##### Parameters
+#### Parameters
 
-##### Response
+#### Response
 
 ```json
 {
@@ -148,12 +150,12 @@ A JWT must be included in the header of the request.
 }
 ```
 
-#### POST /user/changename
+### POST /user/changename
 
 ユーザ名を変更します。  
 ユーザ名は3文字から30文字の英数字である必要があります。
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -163,7 +165,7 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 ```json
 {
@@ -174,11 +176,11 @@ Request Body
 }
 ```
 
-#### GET /user/note
+### GET /user/note
 
 ログインしているユーザの指定された単一のノートを取得します。
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -190,7 +192,7 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 ```json
 {
@@ -213,11 +215,11 @@ Request Body
 }
 ```
 
-#### POST /user/note
+### POST /user/note
 
 ログインしているユーザで指定された単一のノートを投稿または更新します。
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -231,15 +233,15 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 * 200: OK
 
-#### GET /user/notes
+### GET /user/notes
 
 ログインしているユーザのノートの一覧を取得します。
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -255,7 +257,7 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 ```json
 {
@@ -283,11 +285,11 @@ Request Body
 }
 ```
 
-#### GET /user/note/tag
+### GET /user/note/tag
 
 ログインしているユーザの指定されたノートのタグ一覧を取得します。
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -299,7 +301,7 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 ```json
 {
@@ -311,11 +313,11 @@ Request Body
 }
 ```
 
-#### POST /user/note/tag
+### POST /user/note/tag
 
 ログインしているユーザの指定されたノートにタグを追加します。
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -328,15 +330,15 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 * 200: OK
 
-#### DELETE /user/note/tag
+### DELETE /user/note/tag
 
 ログインしているユーザの指定されたノートからタグを削除します。
 
-##### Parameters
+#### Parameters
 
 Request Body
 
@@ -349,7 +351,7 @@ Request Body
 }
 ```
 
-##### Response
+#### Response
 
 * 200: OK
 
