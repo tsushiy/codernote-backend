@@ -2,14 +2,19 @@
 
 Frontend: [codernote-frontend](https://github.com/tsushiy/codernote-frontend)
 
-## Run API Server
+## Develop on your local
+
+ルート以下のAPIサーバーと`crawler/`以下のCrawlerは別モジュールになっています。  
+CrawlerはAPIサーバー側のdbパッケージに依存しているので、バージョン管理に注意してください。
+
+### Run API Server
 
 ```sh
 go build
 ./codernote-backend
 ```
 
-## Run Crawler
+### Run Crawler
 
 ```sh
 go run ./crawler/cmd/main.go
