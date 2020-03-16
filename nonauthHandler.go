@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	. "github.com/tsushiy/codernote-backend/db"
@@ -22,7 +23,7 @@ func (s *server) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *server) problemsHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) problemsGetHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	domain := q.Get("domain")
 
@@ -41,7 +42,7 @@ func (s *server) problemsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(problems)
 }
 
-func (s *server) contestsHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) contestsGetHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	domain := q.Get("domain")
 
@@ -61,30 +62,22 @@ func (s *server) contestsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
-	type noteListGetBody struct {
-		Domain    string
-		ContestID string
-		ProblemID string
-		Tag       string
-		UserName  string
-		Limit     int
-		Skip      int
-		Order     string
-	}
-	var b noteListGetBody
-	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
-		log.Println(err)
-		http.Error(w, "invalid request body", http.StatusInternalServerError)
-		return
-	}
+	q := r.URL.Query()
+	domain := q.Get("domain")
+	contestID := q.Get("contestId")
+	problemID := q.Get("problemId")
+	tag := q.Get("tag")
+	userName := q.Get("userName")
+	limit, _ := strconv.Atoi(q.Get("limit"))
+	skip, _ := strconv.Atoi(q.Get("skip"))
+	order := q.Get("order")
 
-	if 1000 < b.Limit {
-		b.Limit = 1000
-	} else if b.Limit < 20 {
-		b.Limit = 20
+	if 1000 < limit {
+		limit = 1000
+	} else if limit < 20 {
+		limit = 20
 	}
-	order := ""
-	if b.Order == "" || b.Order == "-updated" {
+	if order == "" || order == "-updated" {
 		order = "updated_at desc"
 	} else {
 		http.Error(w, "invalid sort order", http.StatusInternalServerError)
@@ -92,17 +85,17 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	pfilter := Problem{
-		Domain:    b.Domain,
-		ProblemID: b.ProblemID,
-		ContestID: b.ContestID,
+		Domain:    domain,
+		ProblemID: problemID,
+		ContestID: contestID,
 	}
-	ufilter := User{Name: b.UserName}
-	tfilter := Tag{Key: b.Tag}
+	ufilter := User{Name: userName}
+	tfilter := Tag{Key: tag}
 	nfilter := Note{Public: true}
 
 	// ここ綺麗に書きたい
 	count := 0
-	if b.Tag == "" {
+	if tag == "" {
 		if err := s.db.
 			Model(&Note{}).
 			Joins("left join problems on problems.no = notes.problem_no").
@@ -134,8 +127,8 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	var notes []Note
-	if b.Tag == "" {
-		if err := s.db.Limit(b.Limit).Offset(b.Skip).
+	if tag == "" {
+		if err := s.db.
 			Preload("User").
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
@@ -143,14 +136,14 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 			Where(&pfilter).
 			Where(&ufilter).
 			Where(&nfilter).
-			Limit(b.Limit).Offset(b.Skip).Order(order).
+			Limit(limit).Offset(skip).Order(order).
 			Find(&notes).Error; err != nil {
 			log.Println(err)
 			http.Error(w, "failed to fetch note list", http.StatusInternalServerError)
 			return
 		}
 	} else {
-		if err := s.db.Limit(b.Limit).Offset(b.Skip).
+		if err := s.db.
 			Preload("User").
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
@@ -161,7 +154,7 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 			Where(&ufilter).
 			Where(&tfilter).
 			Where(&nfilter).
-			Limit(b.Limit).Offset(b.Skip).Order(order).
+			Limit(limit).Offset(skip).Order(order).
 			Find(&notes).Error; err != nil {
 			log.Println(err)
 			http.Error(w, "failed to fetch note list", http.StatusInternalServerError)

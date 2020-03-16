@@ -26,14 +26,14 @@ func main() {
 
 	nonAuthRouter := router.NewRoute().Subrouter()
 	nonAuthRouter.HandleFunc("/healthcheck", s.healthcheckHandler).Methods("GET")
-	nonAuthRouter.HandleFunc("/problems", s.problemsHandler).Methods("GET")
-	nonAuthRouter.HandleFunc("/contests", s.contestsHandler).Methods("GET")
+	nonAuthRouter.HandleFunc("/problems", s.problemsGetHandler).Methods("GET")
+	nonAuthRouter.HandleFunc("/contests", s.contestsGetHandler).Methods("GET")
 	nonAuthRouter.HandleFunc("/notes", s.publicNoteListGetHandler).Methods("GET")
 
 	authRouter := router.NewRoute().Subrouter()
 	authRouter.Use(authMiddleware)
-	authRouter.HandleFunc("/login", s.loginHandler).Methods("POST")
-	authRouter.HandleFunc("/user/changename", s.changeNameHandler).Methods("POST")
+	authRouter.HandleFunc("/login", s.loginPostHandler).Methods("POST")
+	authRouter.HandleFunc("/user/name", s.namePostHandler).Methods("POST")
 	authRouter.HandleFunc("/user/note", s.noteGetHandler).Methods("GET")
 	authRouter.HandleFunc("/user/note", s.notePostHandler).Methods("POST")
 	authRouter.HandleFunc("/user/notes", s.myNoteListGetHandler).Methods("GET")

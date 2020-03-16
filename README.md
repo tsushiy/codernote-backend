@@ -25,15 +25,17 @@ go run cmd/main.go
 
 ## Non-Auth API
 
-### GET /problems?domain={domain}
+### GET /problems
 
 問題の一覧を取得します
 
 #### Parameters
 
-Query
+QueryString
 
 - domain: "atcoder"
+
+example: /problems?domain=atcoder
 
 #### Response
 
@@ -48,15 +50,17 @@ Query
 ]
 ```
 
-### GET /contests?domain={domain}
+### GET /contests
 
 コンテストの一覧を取得します
 
 #### Parameters
 
-Query
+QueryString
 
 - domain: "atcoder"
+
+example: /contests?domain=atcoder
 
 #### Response
 
@@ -84,20 +88,18 @@ Query
 
 #### Parameters
 
-Request Body
+QueryString
 
-```json
-{
-    "Domain": "atcoder",
-    "ContestID": "abc001",
-    "ProblemID": "abc001_1",
-    "UserName": "tsushiy",
-    "Tag": "sample tag",
-    "Limit": 100, // cannot exceed 1000
-    "Skip": 0,
-    "Order": "-updated"
-}
-```
+- domain
+- contestId
+- problemId
+- userName
+- tag
+- limit (can not exceed 1000)
+- skip
+- order
+
+example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=-updated
 
 #### Response
 
@@ -137,9 +139,10 @@ A JWT must be included in the header of the request.
 }
 ```
 
-### GET /login
+### POST /login
 
-ログインします。
+ログインします。  
+初回ログイン時にはランダムなユーザネームで新しく登録されます。
 
 #### Parameters
 
@@ -154,7 +157,7 @@ A JWT must be included in the header of the request.
 }
 ```
 
-### POST /user/changename
+### POST /user/name
 
 ユーザ名を変更します。  
 ユーザ名は3文字から30文字の英数字である必要があります。
@@ -186,15 +189,13 @@ Request Body
 
 #### Parameters
 
-Request Body
+QueryString
 
-```json
-{
-    "Domain": "atcoder",    // required
-    "ContestID": "abc001",  // required
-    "ProblemID": "abc001_1" // required
-}
-```
+- domain (required)
+- contestId (required)
+- problemId (required)
+
+example: /user/note?domain=atcoder&contestId=abc001&problemId=abc001_1
 
 #### Response
 
@@ -247,19 +248,17 @@ Request Body
 
 #### Parameters
 
-Request Body
+QueryString
 
-```json
-{
-    "Domain": "atcoder",
-    "ContestID": "abc001",
-    "ProblemID": "abc001_1",
-    "Tag": "sample tag",
-    "Limit": 100, // cannot exceed 1000
-    "Skip": 0,
-    "Order": "-updated"
-}
-```
+- domain
+- contestId
+- problemId
+- tag
+- limit (can not exceed 1000)
+- skip
+- order
+
+example: /user/notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=-updated
 
 #### Response
 
@@ -295,22 +294,20 @@ Request Body
 
 #### Parameters
 
-Request Body
+QueryString
 
-```json
-{
-    "Domain": "atcoder",     // required
-    "ContestID": "abc001",   // required
-    "ProblemID": "abc001_1", // required
-}
-```
+- domain (required)
+- contestId (required)
+- problemId (required)
+
+example: /user/note/tag?domain=atcoder&contestId=abc001&problemId=abc001_1
 
 #### Response
 
 ```json
 {
     "Tags": [
-        "sample tag",
+        "tag1",
         "tag2",
         "tag3",
     ]
@@ -330,7 +327,7 @@ Request Body
     "Domain": "atcoder",     // required
     "ContestID": "abc001",   // required
     "ProblemID": "abc001_1", // required
-    "Tag": "sample tag",     // required
+    "Tag": "tag1",           // required
 }
 ```
 
@@ -351,7 +348,7 @@ Request Body
     "Domain": "atcoder",     // required
     "ContestID": "abc001",   // required
     "ProblemID": "abc001_1", // required
-    "Tag": "sample tag",     // required
+    "Tag": "tag1",           // required
 }
 ```
 
