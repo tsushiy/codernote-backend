@@ -18,6 +18,10 @@ func loggerMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func (s *server) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *server) problemsHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	domain := q.Get("domain")

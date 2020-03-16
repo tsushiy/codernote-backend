@@ -25,6 +25,7 @@ func main() {
 	router.Use(loggerMiddleware)
 
 	nonAuthRouter := router.NewRoute().Subrouter()
+	nonAuthRouter.HandleFunc("/healthcheck", s.healthcheckHandler).Methods("GET")
 	nonAuthRouter.HandleFunc("/problems", s.problemsHandler).Methods("GET")
 	nonAuthRouter.HandleFunc("/contests", s.contestsHandler).Methods("GET")
 	nonAuthRouter.HandleFunc("/notes", s.publicNoteListGetHandler).Methods("GET")
@@ -42,7 +43,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         "localhost:8000",
+		Addr:         ":8080",
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
 	}
