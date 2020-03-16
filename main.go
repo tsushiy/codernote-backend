@@ -17,9 +17,9 @@ type server struct {
 
 func main() {
 	s := &server{}
-	s.db = DbConnect()
+	s.db = DbConnect(false)
 	defer s.db.Close()
-	s.db.LogMode(true)
+	// s.db.LogMode(true)
 
 	router := mux.NewRouter()
 	router.Use(loggerMiddleware)

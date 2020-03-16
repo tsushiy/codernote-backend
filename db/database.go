@@ -59,12 +59,12 @@ type TagMap struct {
 	TagNo  int
 }
 
-func DbConnect() *gorm.DB {
+func DbConnect(migrate bool) *gorm.DB {
 	host := getEnv("POSTGRE_HOST", "localhost")
 	port := getEnv("POSTGRE_PORT", "5432")
 	user := getEnv("POSTGRE_USER", "postgres")
 	pass := getEnv("POSTGRE_PASS", "passwd")
-	dbname := "codernote"
+	dbname := getEnv("POSTGRE_DBNAME", "codernote-dev")
 
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%v password=%s sslmode=disable",
@@ -78,7 +78,9 @@ func DbConnect() *gorm.DB {
 			continue
 		}
 
-		db.AutoMigrate(&User{}, &Contest{}, &Problem{}, &Note{}, &Tag{}, &TagMap{})
+		if migrate {
+			db.AutoMigrate(&User{}, &Contest{}, &Problem{}, &Note{}, &Tag{}, &TagMap{})
+		}
 		return db
 	}
 
