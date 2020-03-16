@@ -1,4 +1,4 @@
-package main
+package crawler
 
 const (
 	codeforcesProblemsURL = "https://codeforces.com/api/problemset.problems"

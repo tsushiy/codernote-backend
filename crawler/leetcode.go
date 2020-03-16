@@ -1,4 +1,4 @@
-package main
+package crawler
 
 const (
 	leetcodeProblemsURL = "https://leetcode.com/api/problems/all/"

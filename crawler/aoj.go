@@ -1,7 +1,7 @@
-package main
+package crawler
 
 const (
-	aojCoursesURL = "https://judgeapi.u-aizu.ac.jp/courses"
+	aojCoursesURL  = "https://judgeapi.u-aizu.ac.jp/courses"
 	aojProblemsURL = "https://judgeapi.u-aizu.ac.jp/problems?page=0&size=20000"
 )
 
