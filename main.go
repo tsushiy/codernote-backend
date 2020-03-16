@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -41,9 +42,14 @@ func main() {
 	authRouter.HandleFunc("/user/note/tag", s.tagPostHandler).Methods("POST")
 	authRouter.HandleFunc("/user/note/tag", s.tagDeleteHandler).Methods("DELETE")
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         ":8080",
+		Addr:         ":" + port,
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
 	}

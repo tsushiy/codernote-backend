@@ -67,7 +67,7 @@ func DbConnect(migrate bool) *gorm.DB {
 	dbname := getEnv("POSTGRE_DBNAME", "codernote-dev")
 
 	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s dbname=%v password=%s sslmode=disable",
+		"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		host, port, user, dbname, pass)
 	log.Printf("Try connect %s", connStr)
 	for i := 0; i < 3; i++ {
