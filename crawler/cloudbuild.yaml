@@ -9,7 +9,7 @@ steps:
       - --entry-point=Crawl
       - --region=asia-northeast1
       - --runtime=go113
-      - --trigger-topic=codernote-crawler-dev
+      - --trigger-topic=codernote-crawler
     - id: 'Deploy: production'
       name: 'gcr.io/cloud-builders/gcloud'
       dir: crawler
@@ -20,4 +20,4 @@ steps:
       - --entry-point=Crawl
       - --region=asia-northeast1
       - --runtime=go113
-      - --trigger-topic=codernote-crawler-dev
+      - --trigger-topic=codernote-crawler
