@@ -1,11 +1,22 @@
 steps:
-    - id: 'Deploy: dev'
+    - id: 'Deploy: development'
       name: 'gcr.io/cloud-builders/gcloud'
       dir: crawler
       args:
       - functions
       - deploy
-      - CodernoteCrawlerDev
+      - CodernoteCrawlerDevelopment
+      - --entry-point=Crawl
+      - --region=asia-northeast1
+      - --runtime=go113
+      - --trigger-topic=codernote-crawler-dev
+    - id: 'Deploy: production'
+      name: 'gcr.io/cloud-builders/gcloud'
+      dir: crawler
+      args:
+      - functions
+      - deploy
+      - CodernoteCrawlerProduction
       - --entry-point=Crawl
       - --region=asia-northeast1
       - --runtime=go113

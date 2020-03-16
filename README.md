@@ -17,7 +17,8 @@ go build
 ### Run Crawler
 
 ```sh
-go run ./crawler/cmd/main.go
+cd crawler
+go run cmd/main.go
 ```
 
 # API
