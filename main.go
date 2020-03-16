@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
+	"github.com/rs/cors"
 	. "github.com/tsushiy/codernote-backend/db"
 )
 
@@ -47,8 +48,14 @@ func main() {
 		port = "8080"
 	}
 
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete},
+		AllowedHeaders: []string{"*"},
+	})
+
 	srv := &http.Server{
-		Handler:      router,
+		Handler:      c.Handler(router),
 		Addr:         ":" + port,
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
