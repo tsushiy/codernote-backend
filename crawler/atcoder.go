@@ -16,7 +16,7 @@ const (
 	atcoderContestProblemURL = "https://kenkoooo.com/atcoder/resources/contest-problem.json"
 )
 
-var contestProblemMap = make(map[string][]string)
+var contestProblemMap = make(map[string][]int64)
 
 type atcoderProblem struct {
 	ProblemID string `json:"id"`
@@ -49,26 +49,28 @@ func updateAtcoderProblems(db *gorm.DB) error {
 	}
 
 	for _, v := range problems {
-		fetched := &Problem{
-			Domain:    atcoderDomain,
-			ProblemID: v.ProblemID,
-			ContestID: v.ContestID,
-			Title:     v.Title,
-		}
-		in := &Problem{
-			Domain:    atcoderDomain,
-			ProblemID: v.ProblemID,
-		}
-
-		if err := cmpAndUpdate(fetched, in, db); err != nil {
+		var problem Problem
+		if err := db.
+			Where(Problem{
+				Domain:    atcoderDomain,
+				ProblemID: v.ProblemID,
+			}).
+			Assign(Problem{
+				Domain:    atcoderDomain,
+				ProblemID: v.ProblemID,
+				ContestID: v.ContestID,
+				Title:     v.Title,
+			}).
+			FirstOrCreate(&problem).Error; err != nil {
 			return err
 		}
+		contestProblemMap[v.ContestID] = append(contestProblemMap[v.ContestID], int64(problem.No))
 	}
 
 	return nil
 }
 
-func fetchAtcoderContestProblem() error {
+func fetchAtcoderContestProblem(db *gorm.DB) error {
 	log.Println("Start fetching AtCoder contest-problem pair")
 	body, err := fetchAPI(atcoderContestProblemURL)
 	if err != nil {
@@ -79,7 +81,18 @@ func fetchAtcoderContestProblem() error {
 		return err
 	}
 	for _, v := range pairs {
-		contestProblemMap[v.ContestID] = append(contestProblemMap[v.ContestID], v.ProblemID)
+		var problem Problem
+		if err := db.
+			Where(Problem{
+				Domain:    atcoderDomain,
+				ProblemID: v.ProblemID,
+			}).
+			Take(&problem).Error; err != nil {
+			return err
+		}
+		if v.ContestID != problem.ContestID {
+			contestProblemMap[v.ContestID] = append(contestProblemMap[v.ContestID], int64(problem.No))
+		}
 	}
 	for _, v := range contestProblemMap {
 		sort.Slice(v, func(i, j int) bool { return v[i] < v[j] })
@@ -99,21 +112,20 @@ func updateAtcoderContests(db *gorm.DB) error {
 	}
 
 	for _, v := range contests {
-		fetched := &Contest{
-			Domain:           atcoderDomain,
-			ContestID:        v.ContestID,
-			Title:            v.Title,
-			StartTimeSeconds: v.StartEpochSecond,
-			DurationSeconds:  v.DurationSecond,
-			ProblemIDList:    []string{},
-		}
-		in := &Contest{
-			Domain:    atcoderDomain,
-			ContestID: v.ContestID,
-		}
-		fetched.ProblemIDList = contestProblemMap[v.ContestID]
-
-		if err := cmpAndUpdate(fetched, in, db); err != nil {
+		if err := db.
+			Where(Contest{
+				Domain:    atcoderDomain,
+				ContestID: v.ContestID,
+			}).
+			Assign(Contest{
+				Domain:           atcoderDomain,
+				ContestID:        v.ContestID,
+				Title:            v.Title,
+				StartTimeSeconds: v.StartEpochSecond,
+				DurationSeconds:  v.DurationSecond,
+				ProblemNoList:    contestProblemMap[v.ContestID],
+			}).
+			FirstOrCreate(&Contest{}).Error; err != nil {
 			return err
 		}
 	}
@@ -125,7 +137,7 @@ func updateAtcoder(db *gorm.DB) error {
 	if err := updateAtcoderProblems(db); err != nil {
 		return err
 	}
-	if err := fetchAtcoderContestProblem(); err != nil {
+	if err := fetchAtcoderContestProblem(db); err != nil {
 		return err
 	}
 	if err := updateAtcoderContests(db); err != nil {
