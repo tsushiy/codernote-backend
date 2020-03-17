@@ -25,7 +25,7 @@ type Contest struct {
 	Title            string
 	StartTimeSeconds int
 	DurationSeconds  int
-	ProblemIDList    pq.StringArray `gorm:"type:text[]"`
+	ProblemNoList    pq.Int64Array `gorm:"type:integer[]"`
 }
 
 type Problem struct {
@@ -45,7 +45,7 @@ type Note struct {
 	Problem   Problem `gorm:"foreignkey:ProblemNo"`
 	UserNo    int     `json:"-"`
 	User      User    `gorm:"foreignkey:UserNo"`
-	Public    bool    `gorm:"default:false"`
+	Public    int     `gorm:"default:1"`
 }
 
 type Tag struct {
