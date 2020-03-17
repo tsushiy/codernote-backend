@@ -60,6 +60,9 @@ func authMiddleware(next http.Handler) http.Handler {
 
 		claims := token.Claims.(jwt.MapClaims)
 		uid := claims["sub"].(string)
+		if uid == "" {
+			return
+		}
 		ctx := context.WithValue(r.Context(), "uid", uid)
 		r = r.WithContext(ctx)
 
