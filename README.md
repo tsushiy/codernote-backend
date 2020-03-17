@@ -4,9 +4,6 @@ Frontend: [codernote-frontend](https://github.com/tsushiy/codernote-frontend)
 
 ## Develop on your local
 
-ルート以下のAPIサーバーと`crawler/`以下のCrawlerは別モジュールになっています。  
-CrawlerはAPIサーバー側のdbパッケージに依存しているので、バージョン管理に注意してください。
-
 ### Run API Server
 
 ```sh
@@ -21,7 +18,29 @@ cd crawler
 go run cmd/main.go
 ```
 
-# API
+ルート以下のAPIサーバと`crawler/`以下のCrawlerは別モジュールになっています。  
+CrawlerはAPIサーバ側のdbパッケージに依存しているので、バージョン管理に注意してください。  
+例えばDBの構成を変更する場合には、`crawler/go.mod`に以下のように追記してローカルパッケージを用いる、といった対応をしてください。
+
+```
+replace github.com/tsushiy/codernote-backend => ../
+```
+
+## Crawler
+
+以下のAPIから取得したデータを同じ形式にしてデータベースに格納します。
+
+- [AtCoderProblems API](https://github.com/kenkoooo/AtCoderProblems)
+- [Codeforces API](https://codeforces.com/apiHelp)
+- [AOJ API](http://developers.u-aizu.ac.jp/index)
+- [yukicoder API](https://petstore.swagger.io/?url=https://yukicoder.me/api/swagger.yaml)
+- [LeetCode API](https://leetcode.com/api/problems/algorithms/)
+
+## API Server
+
+Crawlerで取得しておいたデータを用いて問題のバリデーションを行います。
+
+認証が必要なAPIでは、Firebase Authenticationで得られたJWTの検証を行います。
 
 ## Non-Auth API
 
