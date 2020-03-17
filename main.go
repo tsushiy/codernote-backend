@@ -34,14 +34,14 @@ func main() {
 
 	authRouter := router.NewRoute().Subrouter()
 	authRouter.Use(authMiddleware)
-	authRouter.HandleFunc("/login", s.loginPostHandler).Methods("POST")
+	authRouter.HandleFunc("/user/login", s.loginPostHandler).Methods("POST")
 	authRouter.HandleFunc("/user/name", s.namePostHandler).Methods("POST")
-	authRouter.HandleFunc("/user/note", s.noteGetHandler).Methods("GET")
-	authRouter.HandleFunc("/user/note", s.notePostHandler).Methods("POST")
+	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}", s.noteGetHandler).Methods("GET")
+	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}", s.notePostHandler).Methods("POST")
 	authRouter.HandleFunc("/user/notes", s.myNoteListGetHandler).Methods("GET")
-	authRouter.HandleFunc("/user/note/tag", s.tagGetHandler).Methods("GET")
-	authRouter.HandleFunc("/user/note/tag", s.tagPostHandler).Methods("POST")
-	authRouter.HandleFunc("/user/note/tag", s.tagDeleteHandler).Methods("DELETE")
+	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}/tag", s.tagGetHandler).Methods("GET")
+	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}/tag", s.tagPostHandler).Methods("POST")
+	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}/tag", s.tagDeleteHandler).Methods("DELETE")
 
 	port := os.Getenv("PORT")
 	if port == "" {

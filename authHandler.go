@@ -11,6 +11,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/gorilla/mux"
 
 	. "github.com/tsushiy/codernote-backend/db"
 )
@@ -39,6 +40,7 @@ func (s *server) loginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) namePostHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
+
 	type changeNameBody struct {
 		Name string
 	}
@@ -82,19 +84,16 @@ func (s *server) namePostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) noteGetHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
-	q := r.URL.Query()
-	domain := q.Get("domain")
-	contestID := q.Get("contestId")
-	problemID := q.Get("problemId")
-	if domain == "" || contestID == "" || problemID == "" {
-		http.Error(w, "invalid request body", http.StatusInternalServerError)
+
+	vars := mux.Vars(r)
+	problemNo, _ := strconv.Atoi(vars["problemNo"])
+	if problemNo == 0 {
+		http.Error(w, "invalid request path", http.StatusInternalServerError)
 		return
 	}
 
 	pfilter := Problem{
-		Domain:    domain,
-		ProblemID: problemID,
-		ContestID: contestID,
+		No: problemNo,
 	}
 	ufilter := User{
 		UserID: uid,
@@ -119,21 +118,22 @@ func (s *server) noteGetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) notePostHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
+
+	vars := mux.Vars(r)
+	problemNo, _ := strconv.Atoi(vars["problemNo"])
+	if problemNo == 0 {
+		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		return
+	}
+
 	type notePostBody struct {
-		Domain    string
-		ContestID string
-		ProblemID string
-		Text      string
-		Public    bool
+		Text   string
+		Public bool
 	}
 	var b notePostBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
 		log.Println(err)
 		http.Error(w, "invalid request body", http.StatusInternalServerError)
-		return
-	}
-	if b.Domain == "" || b.ContestID == "" || b.ProblemID == "" {
-		http.Error(w, "invalid problem", http.StatusInternalServerError)
 		return
 	}
 
@@ -145,15 +145,17 @@ func (s *server) notePostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "too large text", http.StatusInternalServerError)
 		return
 	}
+	var public int
+	if b.Public == true {
+		public = 2
+	} else {
+		public = 1
+	}
 
 	var problem Problem
 	var user User
 	if err := s.db.
-		Where(Problem{
-			Domain:    b.Domain,
-			ProblemID: b.ProblemID,
-			ContestID: b.ContestID,
-		}).
+		Where(Problem{No: problemNo}).
 		Take(&problem).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "no problem matched", http.StatusInternalServerError)
@@ -170,12 +172,12 @@ func (s *server) notePostHandler(w http.ResponseWriter, r *http.Request) {
 	var note Note
 	if err := s.db.
 		Where(Note{
-			ProblemNo: problem.No,
+			ProblemNo: problemNo,
 			UserNo:    user.No,
 		}).
 		Assign(Note{
 			Text:   b.Text,
-			Public: b.Public,
+			Public: public,
 		}).
 		FirstOrCreate(&note).Error; err != nil {
 		log.Println(err)
@@ -188,10 +190,10 @@ func (s *server) notePostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
+
 	q := r.URL.Query()
 	domain := q.Get("domain")
 	contestID := q.Get("contestId")
-	problemID := q.Get("problemId")
 	tag := q.Get("tag")
 	limit, _ := strconv.Atoi(q.Get("limit"))
 	skip, _ := strconv.Atoi(q.Get("skip"))
@@ -211,7 +213,6 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	pfilter := Problem{
 		Domain:    domain,
-		ProblemID: problemID,
 		ContestID: contestID,
 	}
 	ufilter := User{UserID: uid}
@@ -297,20 +298,15 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
-	q := r.URL.Query()
-	domain := q.Get("domain")
-	contestID := q.Get("contestId")
-	problemID := q.Get("problemId")
-	if domain == "" || contestID == "" || problemID == "" {
-		http.Error(w, "invalid problem", http.StatusInternalServerError)
+
+	vars := mux.Vars(r)
+	problemNo, _ := strconv.Atoi(vars["problemNo"])
+	if problemNo == 0 {
+		http.Error(w, "invalid request path", http.StatusInternalServerError)
 		return
 	}
 
-	pfilter := Problem{
-		Domain:    domain,
-		ProblemID: problemID,
-		ContestID: contestID,
-	}
+	pfilter := Problem{No: problemNo}
 	ufilter := User{UserID: uid}
 
 	type result struct {
@@ -334,7 +330,7 @@ func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
 	type response struct {
 		Tags []string
 	}
-	resp := response{}
+	resp := response{Tags: []string{}}
 	for _, v := range res {
 		resp.Tags = append(resp.Tags, v.Key)
 	}
@@ -345,11 +341,16 @@ func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
+
+	vars := mux.Vars(r)
+	problemNo, _ := strconv.Atoi(vars["problemNo"])
+	if problemNo == 0 {
+		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		return
+	}
+
 	type tagPostBody struct {
-		Domain    string
-		ContestID string
-		ProblemID string
-		Tag       string
+		Tag string
 	}
 	var b tagPostBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
@@ -357,28 +358,20 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusInternalServerError)
 		return
 	}
-	if b.Domain == "" || b.ContestID == "" || b.ProblemID == "" {
-		http.Error(w, "invalid problem", http.StatusInternalServerError)
-		return
-	}
 
-	b.Tag = strings.TrimSpace(b.Tag)
-	if b.Tag == "" {
+	key := strings.TrimSpace(b.Tag)
+	if key == "" {
 		http.Error(w, "empty tag", http.StatusInternalServerError)
 		return
 	}
-	if len(b.Tag) > 200 {
+	if len(key) > 200 {
 		http.Error(w, "too large tag", http.StatusInternalServerError)
 		return
 	}
 
 	var problem Problem
 	if err := s.db.
-		Where(Problem{
-			Domain:    b.Domain,
-			ProblemID: b.ProblemID,
-			ContestID: b.ContestID,
-		}).
+		Where(Problem{No: problemNo}).
 		Take(&problem).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "no problem matched", http.StatusInternalServerError)
@@ -394,7 +387,7 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var tag Tag
 	if err := s.db.
-		Where(Tag{Key: b.Tag}).
+		Where(Tag{Key: key}).
 		FirstOrCreate(&tag).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "failed to fetch tag info", http.StatusInternalServerError)
@@ -403,7 +396,7 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	var note Note
 	if err := s.db.
 		Where(Note{
-			ProblemNo: problem.No,
+			ProblemNo: problemNo,
 			UserNo:    user.No,
 		}).
 		FirstOrCreate(&note).Error; err != nil {
@@ -428,11 +421,16 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
+
+	vars := mux.Vars(r)
+	problemNo, _ := strconv.Atoi(vars["problemNo"])
+	if problemNo == 0 {
+		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		return
+	}
+
 	type tagDeleteBody struct {
-		Domain    string
-		ContestID string
-		ProblemID string
-		Tag       string
+		Tag string
 	}
 	var b tagDeleteBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
@@ -440,35 +438,27 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusInternalServerError)
 		return
 	}
-	if b.Domain == "" || b.ContestID == "" || b.ProblemID == "" {
-		http.Error(w, "invalid problem", http.StatusInternalServerError)
-		return
-	}
 
-	b.Tag = strings.TrimSpace(b.Tag)
-	if b.Tag == "" {
+	key := strings.TrimSpace(b.Tag)
+	if key == "" {
 		http.Error(w, "empty tag", http.StatusInternalServerError)
 		return
 	}
-	if len(b.Tag) > 200 {
+	if len(key) > 200 {
 		http.Error(w, "too large tag", http.StatusInternalServerError)
 		return
 	}
 
 	var tag Tag
 	if err := s.db.
-		Where(Tag{Key: b.Tag}).
+		Where(Tag{Key: key}).
 		Take(&tag).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "tag does not exist", http.StatusInternalServerError)
 		return
 	}
 
-	pfilter := Problem{
-		Domain:    b.Domain,
-		ProblemID: b.ProblemID,
-		ContestID: b.ContestID,
-	}
+	pfilter := Problem{No: problemNo}
 	ufilter := User{UserID: uid}
 	var note Note
 	if err := s.db.

@@ -75,8 +75,8 @@ func (s *server) contestsGetHandler(w http.ResponseWriter, r *http.Request) {
 func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	domain := q.Get("domain")
+	problemNo, _ := strconv.Atoi(q.Get("problemNo"))
 	contestID := q.Get("contestId")
-	problemID := q.Get("problemId")
 	tag := q.Get("tag")
 	userName := q.Get("userName")
 	limit, _ := strconv.Atoi(q.Get("limit"))
@@ -97,12 +97,12 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 
 	pfilter := Problem{
 		Domain:    domain,
-		ProblemID: problemID,
+		No:        problemNo,
 		ContestID: contestID,
 	}
 	ufilter := User{Name: userName}
 	tfilter := Tag{Key: tag}
-	nfilter := Note{Public: true}
+	nfilter := Note{Public: 2}
 
 	// ここ綺麗に書きたい
 	count := 0

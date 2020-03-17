@@ -94,11 +94,11 @@ example: /contests?domain=atcoder&order=-started
         "Title": "AtCoder Beginner Contest 001",
         "StartTimeSeconds": 1381579200,
         "DurationSeconds": 7200,
-        "ProblemIDList": [
-            "abc001_1",
-            "abc001_2",
-            "abc001_3",
-            "abc001_4"
+        "ProblemNoList": [
+            1,
+            2,
+            3,
+            4
         ]
     }
 ]
@@ -113,8 +113,8 @@ example: /contests?domain=atcoder&order=-started
 QueryString
 
 - domain
+- problemNo
 - contestId
-- problemId
 - userName
 - tag
 - limit (can not exceed 1000)
@@ -127,7 +127,7 @@ example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=
 
 ```json
 {
-    "Count": 1,  // Total # of notes matched to query (domain, contestId, problemId, userName, tag)
+    "Count": 1,  // Total # of notes matched to query (domain, problemNo, contestId, userName, tag)
     "Notes": [
         {
             "CreatedAt": "2020-03-15T11:38:48.04207Z",
@@ -146,7 +146,7 @@ example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=
                 "CreatedAt": "2020-03-15T10:36:11.273197Z",
                 "UpdatedAt": "2020-03-15T11:17:48.712348Z"
             },
-            "Public": true
+            "Public": 2
         }
     ]
 }
@@ -206,19 +206,17 @@ Request Body
 }
 ```
 
-### GET /user/note
+### GET /user/note/{ProblemNo}
 
 ログインしているユーザの指定された単一のノートを取得します。
 
 #### Parameters
 
-QueryString
+Path
 
-- domain (required)
-- contestId (required)
-- problemId (required)
+- ProblemNo (required)
 
-example: /user/note?domain=atcoder&contestId=abc001&problemId=abc001_1
+example: /user/note/1
 
 #### Response
 
@@ -240,23 +238,24 @@ example: /user/note?domain=atcoder&contestId=abc001&problemId=abc001_1
         "CreatedAt": "2020-03-15T10:36:11.273197Z",
         "UpdatedAt": "2020-03-15T11:17:48.712348Z"
     },
-    "Public": true
+    "Public": 2  // 1 if private, otherwise 2
 }
 ```
 
-### POST /user/note
+### POST /user/note/{ProblemNo}
 
 ログインしているユーザで指定された単一のノートを投稿または更新します。
 
 #### Parameters
 
+Path
+
+- ProblemNo (required)
+
 Request Body
 
 ```json
 {
-    "Domain": "atcoder",     // required
-    "ContestID": "abc001",   // required
-    "ProblemID": "abc001_1", // required
     "Text": "sample text.",  // required, must not be empty
     "Public": true           // false if empty
 }
@@ -276,13 +275,12 @@ QueryString
 
 - domain
 - contestId
-- problemId
 - tag
 - limit (can not exceed 1000)
 - skip
 - order
 
-example: /user/notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=-updated
+example: /user/notes?domain=atcoder&tag=tag1&limit=100&skip=0&order=-updated
 
 #### Response
 
@@ -307,25 +305,23 @@ example: /user/notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&o
                 "CreatedAt": "2020-03-15T10:36:11.273197Z",
                 "UpdatedAt": "2020-03-15T11:17:48.712348Z"
             },
-            "Public": true
+            "Public": 2
         }
     ]
 }
 ```
 
-### GET /user/note/tag
+### GET /user/note/{ProblemNo}/tag
 
 ログインしているユーザの指定されたノートのタグ一覧を取得します。
 
 #### Parameters
 
-QueryString
+Path
 
-- domain (required)
-- contestId (required)
-- problemId (required)
+- ProblemNo (required)
 
-example: /user/note/tag?domain=atcoder&contestId=abc001&problemId=abc001_1
+example: /user/note/1/tag
 
 #### Response
 
@@ -339,19 +335,20 @@ example: /user/note/tag?domain=atcoder&contestId=abc001&problemId=abc001_1
 }
 ```
 
-### POST /user/note/tag
+### POST /user/note/{ProblemNo}/tag
 
 ログインしているユーザの指定されたノートにタグを追加します。
 
 #### Parameters
 
+Path
+
+- ProblemNo (required)
+
 Request Body
 
 ```json
 {
-    "Domain": "atcoder",     // required
-    "ContestID": "abc001",   // required
-    "ProblemID": "abc001_1", // required
     "Tag": "tag1",           // required
 }
 ```
@@ -360,19 +357,20 @@ Request Body
 
 * 200: OK
 
-### DELETE /user/note/tag
+### DELETE /user/note/{ProblemNo}/tag
 
 ログインしているユーザの指定されたノートからタグを削除します。
 
 #### Parameters
 
+Path
+
+- ProblemNo (required)
+
 Request Body
 
 ```json
 {
-    "Domain": "atcoder",     // required
-    "ContestID": "abc001",   // required
-    "ProblemID": "abc001_1", // required
     "Tag": "tag1",           // required
 }
 ```
@@ -401,7 +399,7 @@ Contest {
     Title            string
     StartTimeSeconds int
     DurationSeconds  int
-    ProblemIDList    []string
+    ProblemNoList    []integer
 }
 ```
 
@@ -425,7 +423,7 @@ Note {
     Problem   Problem
     UserNo    int
     User      User
-    Public    bool
+    Public    int
 }
 ```
 
