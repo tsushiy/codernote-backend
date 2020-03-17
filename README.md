@@ -79,8 +79,9 @@ example: /problems?domain=atcoder
 QueryString
 
 - domain: "atcoder"
+- order: "-started", "started"
 
-example: /contests?domain=atcoder
+example: /contests?domain=atcoder&order=-started
 
 #### Response
 
@@ -118,7 +119,7 @@ QueryString
 - tag
 - limit (can not exceed 1000)
 - skip
-- order
+- order: "-updated"
 
 example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=-updated
 
@@ -126,7 +127,7 @@ example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=
 
 ```json
 {
-    "Count": 1,
+    "Count": 1,  // Total # of notes matched to query (domain, contestId, problemId, userName, tag)
     "Notes": [
         {
             "CreatedAt": "2020-03-15T11:38:48.04207Z",
@@ -287,7 +288,7 @@ example: /user/notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&o
 
 ```json
 {
-    "Count": 1,
+    "Count": 1,  // Total # of notes matched to query (domain, contestId, problemId, tag)
     "Notes": [
         {
             "CreatedAt": "2020-03-15T11:38:48.04207Z",

@@ -199,8 +199,8 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	if 1000 < limit {
 		limit = 1000
-	} else if limit < 20 {
-		limit = 20
+	} else if limit == 0 {
+		limit = 100
 	}
 	if order == "" || order == "-updated" {
 		order = "updated_at desc"
@@ -251,13 +251,13 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 	var notes []Note
 	if tag == "" {
 		if err := s.db.
+			Limit(limit).Offset(skip).Order(order).
 			Preload("User").
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
 			Joins("left join users on users.no = notes.user_no").
 			Where(&pfilter).
 			Where(&ufilter).
-			Limit(limit).Offset(skip).Order(order).
 			Find(&notes).Error; err != nil {
 			log.Println(err)
 			http.Error(w, "failed to fetch note list", http.StatusInternalServerError)
@@ -265,6 +265,7 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		if err := s.db.
+			Limit(limit).Offset(skip).Order(order).
 			Preload("User").
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
@@ -274,7 +275,6 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 			Where(&pfilter).
 			Where(&ufilter).
 			Where(&tfilter).
-			Limit(limit).Offset(skip).Order(order).
 			Find(&notes).Error; err != nil {
 			log.Println(err)
 			http.Error(w, "failed to fetch note list", http.StatusInternalServerError)

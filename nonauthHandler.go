@@ -45,9 +45,20 @@ func (s *server) problemsGetHandler(w http.ResponseWriter, r *http.Request) {
 func (s *server) contestsGetHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	domain := q.Get("domain")
+	order := q.Get("order")
+
+	if order == "" || order == "-started" {
+		order = "start_time_seconds desc"
+	} else if order == "started" {
+		order = "start_time_seconds asc"
+	} else {
+		http.Error(w, "invalid sort order", http.StatusInternalServerError)
+		return
+	}
 
 	var contests []Contest
 	if err := s.db.
+		Order(order).
 		Where(Contest{
 			Domain: domain,
 		}).
@@ -74,8 +85,8 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 
 	if 1000 < limit {
 		limit = 1000
-	} else if limit < 20 {
-		limit = 20
+	} else if limit == 0 {
+		limit = 100
 	}
 	if order == "" || order == "-updated" {
 		order = "updated_at desc"
@@ -129,6 +140,7 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 	var notes []Note
 	if tag == "" {
 		if err := s.db.
+			Limit(limit).Offset(skip).Order(order).
 			Preload("User").
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
@@ -136,7 +148,6 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 			Where(&pfilter).
 			Where(&ufilter).
 			Where(&nfilter).
-			Limit(limit).Offset(skip).Order(order).
 			Find(&notes).Error; err != nil {
 			log.Println(err)
 			http.Error(w, "failed to fetch note list", http.StatusInternalServerError)
@@ -144,6 +155,7 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 		}
 	} else {
 		if err := s.db.
+			Limit(limit).Offset(skip).Order(order).
 			Preload("User").
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
@@ -154,7 +166,6 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 			Where(&ufilter).
 			Where(&tfilter).
 			Where(&nfilter).
-			Limit(limit).Offset(skip).Order(order).
 			Find(&notes).Error; err != nil {
 			log.Println(err)
 			http.Error(w, "failed to fetch note list", http.StatusInternalServerError)
