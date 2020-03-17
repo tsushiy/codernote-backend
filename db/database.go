@@ -19,7 +19,7 @@ type User struct {
 }
 
 type Contest struct {
-	No               int `gorm:"primary_key" json:"-"`
+	No               int `gorm:"primary_key"`
 	Domain           string
 	ContestID        string
 	Title            string
@@ -29,7 +29,7 @@ type Contest struct {
 }
 
 type Problem struct {
-	No        int `gorm:"primary_key" json:"-"`
+	No        int `gorm:"primary_key"`
 	Domain    string
 	ProblemID string
 	ContestID string
@@ -41,7 +41,7 @@ type Note struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Text      string
-	ProblemNo int     `json:"-"`
+	ProblemNo int
 	Problem   Problem `gorm:"foreignkey:ProblemNo"`
 	UserNo    int     `json:"-"`
 	User      User    `gorm:"foreignkey:UserNo"`
