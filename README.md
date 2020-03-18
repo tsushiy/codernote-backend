@@ -38,6 +38,8 @@ replace github.com/tsushiy/codernote-backend => ../
 
 ## API Server
 
+apiv1.codernote.tsushiy.com で呼べますが、codernote-frontend 以外から呼ばれることはあまり想定していません。
+
 Crawlerで取得しておいたデータを用いて問題のバリデーションを行います。
 
 認証が必要なAPIでは、Firebase Authenticationで得られたJWTの検証を行います。
@@ -127,7 +129,7 @@ example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=
 
 ```json
 {
-    "Count": 1,  // Total # of notes matched to query (domain, problemNo, contestId, userName, tag)
+    "Count": 1,  // Total # of notes matched to the query (domain, problemNo, contestId, userName, tag)
     "Notes": [
         {
             "CreatedAt": "2020-03-15T11:38:48.04207Z",
@@ -286,7 +288,7 @@ example: /user/notes?domain=atcoder&tag=tag1&limit=100&skip=0&order=-updated
 
 ```json
 {
-    "Count": 1,  // Total # of notes matched to query (domain, contestId, problemId, tag)
+    "Count": 1,  // Total # of notes matched to the query (domain, contestId, tag)
     "Notes": [
         {
             "CreatedAt": "2020-03-15T11:38:48.04207Z",
@@ -349,7 +351,7 @@ Request Body
 
 ```json
 {
-    "Tag": "tag1",           // required
+    "Tag": "tag1",  // required
 }
 ```
 
@@ -371,7 +373,7 @@ Request Body
 
 ```json
 {
-    "Tag": "tag1",           // required
+    "Tag": "tag1",  // required
 }
 ```
 
