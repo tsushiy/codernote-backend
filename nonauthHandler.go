@@ -124,7 +124,7 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 			Model(&Note{}).
 			Joins("left join problems on problems.no = notes.problem_no").
 			Joins("left join users on users.no = notes.user_no").
-			Joins("left join tag_maps on tag_maps.note_no = notes.no").
+			Joins("left join tag_maps on tag_maps.note_id = notes.id").
 			Joins("left join tags on tags.no = tag_maps.tag_no").
 			Where(&pfilter).
 			Where(&ufilter).
@@ -160,7 +160,7 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
 			Joins("left join users on users.no = notes.user_no").
-			Joins("left join tag_maps on tag_maps.note_no = notes.no").
+			Joins("left join tag_maps on tag_maps.note_id = notes.id").
 			Joins("left join tags on tags.no = tag_maps.tag_no").
 			Where(&pfilter).
 			Where(&ufilter).

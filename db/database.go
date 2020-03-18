@@ -37,7 +37,7 @@ type Problem struct {
 }
 
 type Note struct {
-	No        int `gorm:"primary_key" json:"-"`
+	ID        string `gorm:"primary_key"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Text      string
@@ -55,7 +55,7 @@ type Tag struct {
 
 type TagMap struct {
 	No     int `gorm:"primary_key" json:"-"`
-	NoteNo int
+	NoteID string
 	TagNo  int
 }
 

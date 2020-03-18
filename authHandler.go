@@ -11,6 +11,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 
 	. "github.com/tsushiy/codernote-backend/db"
@@ -92,12 +93,8 @@ func (s *server) noteGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pfilter := Problem{
-		No: problemNo,
-	}
-	ufilter := User{
-		UserID: uid,
-	}
+	pfilter := Problem{No: problemNo}
+	ufilter := User{UserID: uid}
 	var note Note
 	if err := s.db.
 		Preload("User").
@@ -170,10 +167,17 @@ func (s *server) notePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var note Note
+	randID, err := genUUID()
+	if err != nil {
+		return
+	}
 	if err := s.db.
 		Where(Note{
 			ProblemNo: problemNo,
 			UserNo:    user.No,
+		}).
+		Attrs(Note{
+			ID: randID,
 		}).
 		Assign(Note{
 			Text:   b.Text,
@@ -237,7 +241,7 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 			Model(&Note{}).
 			Joins("left join problems on problems.no = notes.problem_no").
 			Joins("left join users on users.no = notes.user_no").
-			Joins("left join tag_maps on tag_maps.note_no = notes.no").
+			Joins("left join tag_maps on tag_maps.note_id = notes.id").
 			Joins("left join tags on tags.no = tag_maps.tag_no").
 			Where(&pfilter).
 			Where(&ufilter).
@@ -271,7 +275,7 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 			Preload("Problem").
 			Joins("left join problems on problems.no = notes.problem_no").
 			Joins("left join users on users.no = notes.user_no").
-			Joins("left join tag_maps on tag_maps.note_no = notes.no").
+			Joins("left join tag_maps on tag_maps.note_id = notes.id").
 			Joins("left join tags on tags.no = tag_maps.tag_no").
 			Where(&pfilter).
 			Where(&ufilter).
@@ -317,7 +321,7 @@ func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
 		Model(&Note{}).
 		Joins("left join problems on problems.no = notes.problem_no").
 		Joins("left join users on users.no = notes.user_no").
-		Joins("left join tag_maps on tag_maps.note_no = notes.no").
+		Joins("left join tag_maps on tag_maps.note_id = notes.id").
 		Joins("left join tags on tags.no = tag_maps.tag_no").
 		Where(&pfilter).
 		Where(&ufilter).
@@ -394,10 +398,17 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var note Note
+	randID, err := genUUID()
+	if err != nil {
+		return
+	}
 	if err := s.db.
 		Where(Note{
 			ProblemNo: problemNo,
 			UserNo:    user.No,
+		}).
+		Attrs(Note{
+			ID: randID,
 		}).
 		FirstOrCreate(&note).Error; err != nil {
 		log.Println(err)
@@ -407,7 +418,7 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	var tagMap TagMap
 	if err := s.db.
 		Where(TagMap{
-			NoteNo: note.No,
+			NoteID: note.ID,
 			TagNo:  tag.No,
 		}).
 		FirstOrCreate(&tagMap).Error; err != nil {
@@ -474,7 +485,7 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	var tagMap TagMap
 	if err := s.db.
 		Where(TagMap{
-			NoteNo: note.No,
+			NoteID: note.ID,
 			TagNo:  tag.No,
 		}).
 		Take(&tagMap).Error; err != nil {
@@ -499,4 +510,12 @@ func randStr(n int) string {
 		b[i] = letters[rand.Int63()%int64(len(letters))]
 	}
 	return string(b)
+}
+
+func genUUID() (string, error) {
+	u, err := uuid.NewRandom()
+	if err != nil {
+		return "", err
+	}
+	return u.String(), nil
 }
