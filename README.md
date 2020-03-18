@@ -106,6 +106,43 @@ example: /contests?domain=atcoder&order=-started
 ]
 ```
 
+### GET /note
+
+公開されている単一のノートを取得します
+
+#### Parameters
+
+QueryString
+
+- noteId (required)
+
+example: /note?noteId=74b3ea1e-b296-4d62-bb9a-81fa5c39dd31
+
+#### Response
+
+```json
+{
+    "ID": "74b3ea1e-b296-4d62-bb9a-81fa5c39dd31",
+    "CreatedAt": "2020-03-15T11:38:48.04207Z",
+    "UpdatedAt": "2020-03-15T11:41:43.371398Z",
+    "Text": "sample text.",
+    "Problem": {
+        "No": 1,
+        "Domain": "atcoder",
+        "ProblemID": "abc001_1",
+        "ContestID": "abc001",
+        "Title": "A. 積雪深差"
+    },
+    "User": {
+        "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",
+        "Name": "tsushiy",
+        "CreatedAt": "2020-03-15T10:36:11.273197Z",
+        "UpdatedAt": "2020-03-15T11:17:48.712348Z"
+    },
+    "Public": 2
+}
+```
+
 ### GET /notes
 
 公開されているノートの一覧を取得します
@@ -132,6 +169,7 @@ example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=
     "Count": 1,  // Total # of notes matched to the query (domain, problemNo, contestId, userName, tag)
     "Notes": [
         {
+            "ID": "74b3ea1e-b296-4d62-bb9a-81fa5c39dd31",
             "CreatedAt": "2020-03-15T11:38:48.04207Z",
             "UpdatedAt": "2020-03-15T11:41:43.371398Z",
             "Text": "sample text.",
@@ -208,6 +246,46 @@ Request Body
 }
 ```
 
+### GET /user/note
+
+公開されている単一のノートを取得します  
+ログインしているユーザの作成したノートであれば、公開されていなくても取得します。
+
+GET /note とほぼ同じです。ログインした状態であれば基本的にこっちを使えばいいです。
+
+#### Parameters
+
+QueryString
+
+- noteId (required)
+
+example: /user/note?noteId=74b3ea1e-b296-4d62-bb9a-81fa5c39dd31
+
+#### Response
+
+```json
+{
+    "ID": "74b3ea1e-b296-4d62-bb9a-81fa5c39dd31",
+    "CreatedAt": "2020-03-15T11:38:48.04207Z",
+    "UpdatedAt": "2020-03-15T11:41:43.371398Z",
+    "Text": "sample text.",
+    "Problem": {
+        "No": 1,
+        "Domain": "atcoder",
+        "ProblemID": "abc001_1",
+        "ContestID": "abc001",
+        "Title": "A. 積雪深差"
+    },
+    "User": {
+        "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",
+        "Name": "tsushiy",
+        "CreatedAt": "2020-03-15T10:36:11.273197Z",
+        "UpdatedAt": "2020-03-15T11:17:48.712348Z"
+    },
+    "Public": 2
+}
+```
+
 ### GET /user/note/{ProblemNo}
 
 ログインしているユーザの指定された単一のノートを取得します。
@@ -224,6 +302,7 @@ example: /user/note/1
 
 ```json
 {
+    "ID": "74b3ea1e-b296-4d62-bb9a-81fa5c39dd31",
     "CreatedAt": "2020-03-15T11:38:48.04207Z",
     "UpdatedAt": "2020-03-15T11:39:50.905595Z",
     "Text": "sample text.",
@@ -291,6 +370,7 @@ example: /user/notes?domain=atcoder&tag=tag1&limit=100&skip=0&order=-updated
     "Count": 1,  // Total # of notes matched to the query (domain, contestId, tag)
     "Notes": [
         {
+            "ID": "74b3ea1e-b296-4d62-bb9a-81fa5c39dd31",
             "CreatedAt": "2020-03-15T11:38:48.04207Z",
             "UpdatedAt": "2020-03-15T11:41:43.371398Z",
             "Text": "sample text.",
@@ -417,7 +497,7 @@ Problem {
 
 ```
 Note {
-    No        int
+    ID        string
     CreatedAt string (RFC 3339)
     UpdatedAt string (RFC 3339)
     Text      string
@@ -439,7 +519,7 @@ Tag {
 ```
 TagMap {
     No     int
-    NoteNo int
+    NoteID string
     TagNo  int
 }
 ```
