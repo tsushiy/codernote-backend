@@ -27,8 +27,13 @@ func (s *server) loginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 	if err := s.db.
-		Where(User{UserID: uid}).
-		Attrs(User{UserID: uid, Name: randStr(defaultNameLen)}).
+		Where(User{
+			UserID: uid,
+		}).
+		Attrs(User{
+			UserID: uid,
+			Name:   randStr(defaultNameLen),
+		}).
 		FirstOrCreate(&user).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "failed to fetch or create user", http.StatusInternalServerError)
@@ -68,7 +73,9 @@ func (s *server) usernamePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 	if err := s.db.
-		Where(User{UserID: uid}).
+		Where(User{
+			UserID: uid,
+		}).
 		Assign(User{
 			UserID: uid,
 			Name:   name,
@@ -182,14 +189,18 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 	var problem Problem
 	var user User
 	if err := s.db.
-		Where(Problem{No: problemNo}).
+		Where(Problem{
+			No: problemNo,
+		}).
 		Take(&problem).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "no problem matched", http.StatusInternalServerError)
 		return
 	}
 	if err := s.db.
-		Where(User{UserID: uid}).
+		Where(User{
+			UserID: uid,
+		}).
 		Take(&user).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "user not registered", http.StatusInternalServerError)
@@ -405,7 +416,9 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	var problem Problem
 	if err := s.db.
-		Where(Problem{No: problemNo}).
+		Where(Problem{
+			No: problemNo,
+		}).
 		Take(&problem).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "no problem matched", http.StatusInternalServerError)
@@ -413,7 +426,9 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var user User
 	if err := s.db.
-		Where(User{UserID: uid}).
+		Where(User{
+			UserID: uid,
+		}).
 		Take(&user).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "user is not registered", http.StatusInternalServerError)
@@ -421,7 +436,9 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var tag Tag
 	if err := s.db.
-		Where(Tag{Key: key}).
+		Where(Tag{
+			Key: key,
+		}).
 		FirstOrCreate(&tag).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "failed to fetch tag info", http.StatusInternalServerError)
@@ -492,7 +509,9 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	var tag Tag
 	if err := s.db.
-		Where(Tag{Key: key}).
+		Where(Tag{
+			Key: key,
+		}).
 		Take(&tag).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "tag does not exist", http.StatusInternalServerError)
