@@ -15,6 +15,7 @@ github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe/go.mod h1:8vg3r2VgvsThLBIFL93Qb5yWzgyZWhEmBwUJWevAkK0=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/mux v1.7.4 h1:VuZ8uybHlWmqV03+zRzdwKL4tUnIp1MAQtp1mIFE1bc=
 github.com/gorilla/mux v1.7.4/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
 github.com/jinzhu/gorm v1.9.12 h1:Drgk1clyWT9t9ERbzHza6Mj/8FY/CqMyVzOiHviMo6Q=
@@ -36,6 +37,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/tsushiy/codernote-backend v0.0.0-20200315180613-2278ba7c8e6d/go.mod h1:tCtWCOActKYuKjzaVmeA69y8jigXgn1LXTIoatwiQ4I=
 github.com/tsushiy/codernote-backend v0.1.0 h1:N7VbOpntcRZbkpu47WoryXcfabh8sy4RZUXSVU5zf5s=
 github.com/tsushiy/codernote-backend v0.1.0/go.mod h1:N288GCKVz1wyQFv3RyvI7metXYG7kLixCTVnkLgdCd4=
+github.com/tsushiy/codernote-backend v1.0.0 h1:GBnkFsFC3wTjFHXdIoFLVamztDrc3Bb6cmT1JH+cmoU=
+github.com/tsushiy/codernote-backend v1.0.0/go.mod h1:5GUJeli9MQuBKmAboa53KL7E1MwtTOriIBRHwMA+t20=
 github.com/tsushiy/codernote-backend/crawler v0.0.0-20200315184956-86219c25dd50/go.mod h1:6sEyAtNPQnhlKk4fpBYO1+US20dT6SL/K4AsEpn/aO8=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
