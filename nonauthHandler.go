@@ -72,6 +72,35 @@ func (s *server) contestsGetHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(contests)
 }
 
+func (s *server) publicNoteGetHandler(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	noteID := q.Get("noteId")
+	if noteID == "" {
+		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		return
+	}
+
+	nfilter := Note{ID: noteID}
+	var note Note
+	if err := s.db.
+		Preload("User").
+		Preload("Problem").
+		Where(&nfilter).
+		FirstOrInit(&note).Error; err != nil {
+		log.Println(err)
+		http.Error(w, "failed to fetch note", http.StatusInternalServerError)
+		return
+	}
+
+	if note.Public == 1 {
+		note = Note{}
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(note)
+}
+
 func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	domain := q.Get("domain")

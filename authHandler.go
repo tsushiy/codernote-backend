@@ -39,7 +39,7 @@ func (s *server) loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (s *server) namePostHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) usernamePostHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
 
 	type changeNameBody struct {
@@ -83,7 +83,37 @@ func (s *server) namePostHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (s *server) noteGetHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) authNoteGetHandler(w http.ResponseWriter, r *http.Request) {
+	uid := r.Context().Value("uid").(string)
+	q := r.URL.Query()
+
+	noteID := q.Get("noteId")
+	if noteID == "" {
+		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		return
+	}
+
+	nfilter := Note{ID: noteID}
+	var note Note
+	if err := s.db.
+		Preload("User").
+		Preload("Problem").
+		Where(&nfilter).
+		FirstOrInit(&note).Error; err != nil {
+		log.Println(err)
+		http.Error(w, "failed to fetch note", http.StatusInternalServerError)
+		return
+	}
+
+	if note.User.UserID != uid && note.Public == 1 {
+		note = Note{}
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(note)
+}
+
+func (s *server) myNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
 
 	vars := mux.Vars(r)
@@ -113,7 +143,7 @@ func (s *server) noteGetHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(note)
 }
 
-func (s *server) notePostHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
 
 	vars := mux.Vars(r)
