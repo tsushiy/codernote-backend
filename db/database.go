@@ -11,11 +11,16 @@ import (
 )
 
 type User struct {
-	No        int    `gorm:"primary_key" json:"-"`
-	UserID    string `gorm:"unique;not null"`
-	Name      string `gorm:"unique;not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	No           int    `gorm:"primary_key" json:"-"`
+	UserID       string `gorm:"unique;not null"`
+	Name         string `gorm:"unique;not null"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	AtCoderID    string
+	CodeforcesID string
+	YukicoderID  string
+	AOJID        string
+	LeetCodeID   string
 }
 
 type Contest struct {

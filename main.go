@@ -37,6 +37,7 @@ func main() {
 	authRouter.Use(authMiddleware)
 	authRouter.HandleFunc("/login", s.loginPostHandler).Methods("POST")
 	authRouter.HandleFunc("/user/name", s.usernamePostHandler).Methods("POST")
+	authRouter.HandleFunc("/user/setting", s.usersettingPostHandler).Methods("POST")
 	authRouter.HandleFunc("/user/note", s.authNoteGetHandler).Methods("GET")
 	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}", s.myNoteGetHandler).Methods("GET")
 	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}", s.myNotePostHandler).Methods("POST")

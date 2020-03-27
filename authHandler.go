@@ -90,6 +90,46 @@ func (s *server) usernamePostHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+func (s *server) usersettingPostHandler(w http.ResponseWriter, r *http.Request) {
+	uid := r.Context().Value("uid").(string)
+
+	type changeSettingBody struct {
+		AtCoderID    string
+		CodeforcesID string
+		YukicoderID  string
+		AOJID        string
+		LeetCodeID   string
+	}
+	var b changeSettingBody
+	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
+		log.Println(err)
+		http.Error(w, "invalid request body", http.StatusInternalServerError)
+		return
+	}
+
+	var user User
+	if err := s.db.
+		Where(User{
+			UserID: uid,
+		}).
+		Assign(User{
+			UserID:       uid,
+			AtCoderID:    b.AtCoderID,
+			CodeforcesID: b.CodeforcesID,
+			YukicoderID:  b.YukicoderID,
+			AOJID:        b.AOJID,
+			LeetCodeID:   b.LeetCodeID,
+		}).
+		FirstOrCreate(&user).Error; err != nil {
+		log.Println(err)
+		http.Error(w, "failed to change setting", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(user)
+}
+
 func (s *server) authNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
 	q := r.URL.Query()
