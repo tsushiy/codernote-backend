@@ -3,6 +3,7 @@ package crawler
 import (
 	"encoding/json"
 	"log"
+	"strconv"
 
 	"github.com/jinzhu/gorm"
 	. "github.com/tsushiy/codernote-backend/db"
@@ -154,9 +155,10 @@ func updateAOJProblems(db *gorm.DB) error {
 				ProblemID: v.ID,
 			}).
 			Assign(Problem{
-				Domain:    aojDomain,
-				ProblemID: v.ID,
-				Title:     v.Name,
+				Domain:     aojDomain,
+				ProblemID:  v.ID,
+				Title:      v.Name,
+				Difficulty: strconv.Itoa(v.SolvedUser),
 			}).
 			FirstOrCreate(&problem).Error; err != nil {
 			return err
@@ -194,10 +196,11 @@ func updateAOJContests(db *gorm.DB) error {
 					ProblemID: p.ID,
 				}).
 				Assign(Problem{
-					Domain:    aojDomain,
-					ProblemID: p.ID,
-					ContestID: v,
-					Title:     p.Name,
+					Domain:     aojDomain,
+					ProblemID:  p.ID,
+					ContestID:  v,
+					Title:      p.Name,
+					Difficulty: strconv.Itoa(p.SolvedUser),
 				}).
 				FirstOrCreate(&problem).Error; err != nil {
 				return err

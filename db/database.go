@@ -37,6 +37,7 @@ type Problem struct {
 	Title      string
 	Slug       string
 	FrontendID string
+	Difficulty string
 }
 
 type Note struct {

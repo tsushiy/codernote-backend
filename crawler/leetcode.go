@@ -77,6 +77,7 @@ func updateLeetcodeProblem(db *gorm.DB) error {
 					Title:      p.Stat.QuestionTitle,
 					Slug:       p.Stat.QuestionTitleSlug,
 					FrontendID: strconv.Itoa(p.Stat.FrontendQuestionID),
+					Difficulty: strconv.Itoa(p.Difficulty.Level),
 				}).
 				FirstOrCreate(&problem).Error; err != nil {
 				return err

@@ -22,7 +22,7 @@ type yukicoderProblem struct {
 	Title       string    `json:"Title"`
 	AuthorID    int       `json:"AuthorId"`
 	TesterID    int       `json:"TesterId"`
-	Level       float32   `json:"Level"`
+	Level       float64   `json:"Level"`
 	ProblemType int       `json:"ProblemType"`
 	Tags        string    `json:"Tags"`
 	Date        time.Time `json:"Date"`
@@ -62,6 +62,7 @@ func updateYukicoderProblems(db *gorm.DB) error {
 				ProblemID:  problemID,
 				Title:      v.Title,
 				FrontendID: strconv.Itoa(v.No),
+				Difficulty: strconv.FormatFloat(v.Level, 'f', -1, 64),
 			}).
 			FirstOrCreate(&problem).Error; err != nil {
 			return err

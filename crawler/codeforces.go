@@ -145,10 +145,11 @@ func updateCodeforcesProblems(db *gorm.DB) error {
 				ContestID: contestID,
 			}).
 			Assign(Problem{
-				Domain:    codeforcesDomain,
-				ProblemID: v.Index,
-				ContestID: contestID,
-				Title:     v.Name,
+				Domain:     codeforcesDomain,
+				ProblemID:  v.Index,
+				ContestID:  contestID,
+				Title:      v.Name,
+				Difficulty: strconv.Itoa(v.Rating),
 			}).
 			FirstOrCreate(&problem).Error; err != nil {
 			return err
@@ -296,8 +297,8 @@ func updateCodeforces(db *gorm.DB) error {
 	if err := updateCodeforcesProblems(db); err != nil {
 		return err
 	}
-	if err := updateCodeforcesContests(db); err != nil {
-		return err
-	}
+	// if err := updateCodeforcesContests(db); err != nil {
+	// 	return err
+	// }
 	return nil
 }
