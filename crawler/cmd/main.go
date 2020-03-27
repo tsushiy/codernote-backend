@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	crawler.Crawl(nil, crawler.PubSubMessage{})
+	crawler.CrawlAll(nil, crawler.PubSubMessage{})
 }
