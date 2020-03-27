@@ -25,15 +25,18 @@ type Contest struct {
 	Title            string
 	StartTimeSeconds int
 	DurationSeconds  int
+	Rated            string
 	ProblemNoList    pq.Int64Array `gorm:"type:integer[]"`
 }
 
 type Problem struct {
-	No        int `gorm:"primary_key"`
-	Domain    string
-	ProblemID string
-	ContestID string
-	Title     string
+	No         int `gorm:"primary_key"`
+	Domain     string
+	ProblemID  string
+	ContestID  string
+	Title      string
+	Slug       string
+	FrontendID string
 }
 
 type Note struct {
@@ -73,7 +76,7 @@ func DbConnect(migrate bool) *gorm.DB {
 	for i := 0; i < 3; i++ {
 		db, err := gorm.Open("postgres", connStr)
 		if err != nil {
-			log.Printf("Cannot connect db %d/3", i)
+			log.Printf("Cannot connect to db %d/3", i+1)
 			time.Sleep(5 * time.Second)
 			continue
 		}
