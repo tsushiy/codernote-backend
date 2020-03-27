@@ -1,23 +1,56 @@
 steps:
-    - id: 'Deploy: development'
+    - id: 'Deploy: AtCoder'
       name: 'gcr.io/cloud-builders/gcloud'
       dir: crawler
       args:
       - functions
       - deploy
-      - CodernoteCrawlerDevelopment
-      - --entry-point=Crawl
+      - CodernoteCrawlerAtCoder
+      - --entry-point=CrawlAtcoder
       - --region=asia-northeast1
       - --runtime=go113
       - --trigger-topic=codernote-crawler
-    - id: 'Deploy: production'
+    - id: 'Deploy: Codeforces'
       name: 'gcr.io/cloud-builders/gcloud'
       dir: crawler
       args:
       - functions
       - deploy
-      - CodernoteCrawlerProduction
-      - --entry-point=Crawl
+      - CodernoteCrawlerCodeforces
+      - --entry-point=CrawlCodeforces
+      - --region=asia-northeast1
+      - --runtime=go113
+      - --trigger-topic=codernote-crawler
+    - id: 'Deploy: yukicoder'
+      name: 'gcr.io/cloud-builders/gcloud'
+      dir: crawler
+      args:
+      - functions
+      - deploy
+      - CodernoteCrawlerYukicoder
+      - --entry-point=CrawlYukicoder
+      - --region=asia-northeast1
+      - --runtime=go113
+      - --trigger-topic=codernote-crawler
+    - id: 'Deploy: AOJ'
+      name: 'gcr.io/cloud-builders/gcloud'
+      dir: crawler
+      args:
+      - functions
+      - deploy
+      - CodernoteCrawlerAOJ
+      - --entry-point=CrawlAOJ
+      - --region=asia-northeast1
+      - --runtime=go113
+      - --trigger-topic=codernote-crawler
+    - id: 'Deploy: LeetCode'
+      name: 'gcr.io/cloud-builders/gcloud'
+      dir: crawler
+      args:
+      - functions
+      - deploy
+      - CodernoteCrawlerLeetCode
+      - --entry-point=CrawlLeetcode
       - --region=asia-northeast1
       - --runtime=go113
       - --trigger-topic=codernote-crawler
