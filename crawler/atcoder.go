@@ -16,7 +16,7 @@ const (
 	atcoderContestProblemURL = "https://kenkoooo.com/atcoder/resources/contest-problem.json"
 )
 
-var contestProblemMap = make(map[string][]int64)
+var atcoderContestProblemMap = make(map[string][]Problem)
 
 type atcoderProblem struct {
 	ProblemID string `json:"id"`
@@ -64,7 +64,7 @@ func updateAtcoderProblems(db *gorm.DB) error {
 			FirstOrCreate(&problem).Error; err != nil {
 			return err
 		}
-		contestProblemMap[v.ContestID] = append(contestProblemMap[v.ContestID], int64(problem.No))
+		atcoderContestProblemMap[v.ContestID] = append(atcoderContestProblemMap[v.ContestID], problem)
 	}
 
 	return nil
@@ -91,11 +91,11 @@ func fetchAtcoderContestProblem(db *gorm.DB) error {
 			return err
 		}
 		if v.ContestID != problem.ContestID {
-			contestProblemMap[v.ContestID] = append(contestProblemMap[v.ContestID], int64(problem.No))
+			atcoderContestProblemMap[v.ContestID] = append(atcoderContestProblemMap[v.ContestID], problem)
 		}
 	}
-	for _, v := range contestProblemMap {
-		sort.Slice(v, func(i, j int) bool { return v[i] < v[j] })
+	for _, v := range atcoderContestProblemMap {
+		sort.Slice(v, func(i, j int) bool { return v[i].ProblemID < v[j].ProblemID })
 	}
 	return nil
 }
@@ -112,6 +112,13 @@ func updateAtcoderContests(db *gorm.DB) error {
 	}
 
 	for _, v := range contests {
+		var problemNoList []int64
+		for _, problem := range atcoderContestProblemMap[v.ContestID] {
+			problemNoList = append(problemNoList, int64(problem.No))
+		}
+		if len(problemNoList) == 0 {
+			continue
+		}
 		if err := db.
 			Where(Contest{
 				Domain:    atcoderDomain,
@@ -123,7 +130,8 @@ func updateAtcoderContests(db *gorm.DB) error {
 				Title:            v.Title,
 				StartTimeSeconds: v.StartEpochSecond,
 				DurationSeconds:  v.DurationSecond,
-				ProblemNoList:    contestProblemMap[v.ContestID],
+				Rated:            v.RateChange,
+				ProblemNoList:    problemNoList,
 			}).
 			FirstOrCreate(&Contest{}).Error; err != nil {
 			return err

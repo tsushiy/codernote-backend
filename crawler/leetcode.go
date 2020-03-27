@@ -1,7 +1,17 @@
 package crawler
 
+import (
+	"encoding/json"
+	"log"
+	"strconv"
+
+	"github.com/jinzhu/gorm"
+	. "github.com/tsushiy/codernote-backend/db"
+)
+
 const (
-	leetcodeProblemsURL = "https://leetcode.com/api/problems/all/"
+	leetcodeDomain          = "leetcode"
+	leetcodeProblemsBaseURL = "https://leetcode.com/api/problems/"
 )
 
 type leetcodeProblem struct {
@@ -36,4 +46,65 @@ type leetcodeProblem struct {
 	FrequencyHigh int    `json:"frequency_high"`
 	FrequencyMid  int    `json:"frequency_mid"`
 	CategorySlug  string `json:"category_slug"`
+}
+
+func updateLeetcodeProblem(db *gorm.DB) error {
+	log.Println("Start updating LeetCode contest info")
+	categories := []string{"algorithms", "database", "shell", "concurrency"}
+
+	for _, category := range categories {
+		url := leetcodeProblemsBaseURL + category
+		body, err := fetchAPI(url)
+		if err != nil {
+			return err
+		}
+		var ret leetcodeProblem
+		if err := json.Unmarshal(body, &ret); err != nil {
+			return err
+		}
+		var problemNoList []int64
+		for _, p := range ret.StatStatusPairs {
+			var problem Problem
+			if err := db.
+				Where(Problem{
+					Domain:    leetcodeDomain,
+					ProblemID: strconv.Itoa(p.Stat.QuestionID),
+				}).
+				Assign(Problem{
+					Domain:     leetcodeDomain,
+					ProblemID:  strconv.Itoa(p.Stat.QuestionID),
+					Title:      p.Stat.QuestionTitle,
+					Slug:       p.Stat.QuestionTitleSlug,
+					FrontendID: strconv.Itoa(p.Stat.FrontendQuestionID),
+				}).
+				FirstOrCreate(&problem).Error; err != nil {
+				return err
+			}
+			problemNoList = append(problemNoList, int64(problem.No))
+		}
+
+		if err := db.
+			Where(Contest{
+				Domain:    leetcodeDomain,
+				ContestID: category,
+			}).
+			Assign(Contest{
+				Domain:        leetcodeDomain,
+				ContestID:     category,
+				Title:         category,
+				ProblemNoList: problemNoList,
+			}).
+			FirstOrCreate(&Contest{}).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func updateLeetcode(db *gorm.DB) error {
+	if err := updateLeetcodeProblem(db); err != nil {
+		return err
+	}
+	return nil
 }
