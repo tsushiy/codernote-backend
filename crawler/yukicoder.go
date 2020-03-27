@@ -85,7 +85,18 @@ func updateYukicoderContests(db *gorm.DB) error {
 	for _, v := range contests {
 		var problemNoList []int64
 		for _, id := range v.ProblemIDList {
-			problemNoList = append(problemNoList, int64(yukicoderProblemNoMap[strconv.Itoa(id)]))
+			problemNo := yukicoderProblemNoMap[strconv.Itoa(id)]
+			problemNoList = append(problemNoList, int64(problemNo))
+			if err := db.
+				Where(Problem{
+					No: problemNo,
+				}).
+				Assign(Problem{
+					ContestID: strconv.Itoa(v.ID),
+				}).
+				FirstOrCreate(&Problem{}).Error; err != nil {
+				return err
+			}
 		}
 		if err := db.
 			Where(Contest{

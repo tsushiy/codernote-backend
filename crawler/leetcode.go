@@ -73,6 +73,7 @@ func updateLeetcodeProblem(db *gorm.DB) error {
 				Assign(Problem{
 					Domain:     leetcodeDomain,
 					ProblemID:  strconv.Itoa(p.Stat.QuestionID),
+					ContestID:  category,
 					Title:      p.Stat.QuestionTitle,
 					Slug:       p.Stat.QuestionTitleSlug,
 					FrontendID: strconv.Itoa(p.Stat.FrontendQuestionID),

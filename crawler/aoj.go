@@ -192,15 +192,15 @@ func updateAOJContests(db *gorm.DB) error {
 				Where(Problem{
 					Domain:    aojDomain,
 					ProblemID: p.ID,
+				}).
+				Assign(Problem{
+					Domain:    aojDomain,
+					ProblemID: p.ID,
+					ContestID: v,
 					Title:     p.Name,
 				}).
-				First(&problem).Error; err != nil {
-				if gorm.IsRecordNotFoundError(err) {
-					log.Println(err)
-					continue
-				} else {
-					return err
-				}
+				FirstOrCreate(&problem).Error; err != nil {
+				return err
 			}
 			problemNoList = append(problemNoList, int64(problem.No))
 		}
@@ -245,15 +245,15 @@ func updateAOJContests(db *gorm.DB) error {
 				Where(Problem{
 					Domain:    aojDomain,
 					ProblemID: p.ID,
+				}).
+				Assign(Problem{
+					Domain:    aojDomain,
+					ProblemID: p.ID,
+					ContestID: v,
 					Title:     p.Name,
 				}).
-				First(&problem).Error; err != nil {
-				if gorm.IsRecordNotFoundError(err) {
-					log.Println(err)
-					continue
-				} else {
-					return err
-				}
+				FirstOrCreate(&problem).Error; err != nil {
+				return err
 			}
 			problemNoList = append(problemNoList, int64(problem.No))
 		}
@@ -278,9 +278,9 @@ func updateAOJContests(db *gorm.DB) error {
 }
 
 func updateAOJ(db *gorm.DB) error {
-	if err := updateAOJProblems(db); err != nil {
-		return err
-	}
+	// if err := updateAOJProblems(db); err != nil {
+	// 	return err
+	// }
 	if err := updateAOJContests(db); err != nil {
 		return err
 	}
