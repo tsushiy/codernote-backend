@@ -58,9 +58,10 @@ func updateYukicoderProblems(db *gorm.DB) error {
 				ProblemID: problemID,
 			}).
 			Assign(Problem{
-				Domain:    yukicoderDomain,
-				ProblemID: problemID,
-				Title:     v.Title,
+				Domain:     yukicoderDomain,
+				ProblemID:  problemID,
+				Title:      v.Title,
+				FrontendID: strconv.Itoa(v.No),
 			}).
 			FirstOrCreate(&problem).Error; err != nil {
 			return err
