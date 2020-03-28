@@ -540,6 +540,17 @@ User {
 ```
 
 ```
+UserDetail struct {
+    UserID       string
+    AtCoderID    string
+    CodeforcesID string
+    YukicoderID  string
+    AOJID        string
+    LeetCodeID   string
+}
+```
+
+```
 Contest {
     No               int
     Domain           string
@@ -547,17 +558,21 @@ Contest {
     Title            string
     StartTimeSeconds int
     DurationSeconds  int
-    ProblemNoList    []integer
+    Rated            string
+    ProblemNoList    []int
 }
 ```
 
 ```
 Problem {
-    No        int
-    Domain    string
-    ProblemID string
-    ContestID string
-    Title     string
+    No         int
+    Domain     string
+    ProblemID  string
+    ContestID  string
+    Title      string
+    Slug       string
+    FrontendID string
+    Difficulty string
 }
 ```
 
