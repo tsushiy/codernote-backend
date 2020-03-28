@@ -257,19 +257,13 @@ func updateCodeforcesContests(db *gorm.DB) error {
 
 func getProblemsFromContest(contestID string) (codeforcesProblemsType, error) {
 	url := "https://codeforces.com/api/contest.standings?contestId=" + contestID + "&from=1&count=1"
-	var body []byte
-	var err error
-	for i := 0; i < 3; i++ {
-		body, err = fetchAPI(url)
-		if err != nil {
-			log.Printf("Cannot fetch problems %d/3. contestID: %s", i+1, contestID)
-			time.Sleep(1 * time.Second)
-			continue
-		}
-	}
+
+	body, err := fetchAPI(url)
 	if err != nil {
+		log.Printf("Cannot fetch contest. contestID: %s", contestID)
 		return nil, err
 	}
+
 	var ret ProblemFronContest
 	if err := json.Unmarshal(body, &ret); err != nil {
 		return nil, err
