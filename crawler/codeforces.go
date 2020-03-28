@@ -297,8 +297,8 @@ func updateCodeforces(db *gorm.DB) error {
 	if err := updateCodeforcesProblems(db); err != nil {
 		return err
 	}
-	// if err := updateCodeforcesContests(db); err != nil {
-	// 	return err
-	// }
+	if err := updateCodeforcesContests(db); err != nil {
+		return err
+	}
 	return nil
 }

@@ -136,6 +136,7 @@ func getAOJCourses() ([]string, error) {
 	return courses, nil
 }
 
+// 使ってない
 func updateAOJProblems(db *gorm.DB) error {
 	log.Println("Start updating aoj problem info")
 	body, err := fetchAPI(aojProblemsURL)
@@ -172,7 +173,7 @@ func updateAOJContests(db *gorm.DB) error {
 	log.Println("Start updating aoj contest info")
 	categories, err := getAOJCategories()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	for _, v := range categories {
@@ -226,7 +227,7 @@ func updateAOJContests(db *gorm.DB) error {
 
 	courses, err := getAOJCourses()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	for _, v := range courses {
@@ -250,10 +251,11 @@ func updateAOJContests(db *gorm.DB) error {
 					ProblemID: p.ID,
 				}).
 				Assign(Problem{
-					Domain:    aojDomain,
-					ProblemID: p.ID,
-					ContestID: v,
-					Title:     p.Name,
+					Domain:     aojDomain,
+					ProblemID:  p.ID,
+					ContestID:  v,
+					Title:      p.Name,
+					Difficulty: strconv.Itoa(p.SolvedUser),
 				}).
 				FirstOrCreate(&problem).Error; err != nil {
 				return err
@@ -281,9 +283,6 @@ func updateAOJContests(db *gorm.DB) error {
 }
 
 func updateAOJ(db *gorm.DB) error {
-	// if err := updateAOJProblems(db); err != nil {
-	// 	return err
-	// }
 	if err := updateAOJContests(db); err != nil {
 		return err
 	}
