@@ -11,11 +11,15 @@ import (
 )
 
 type User struct {
-	No           int    `gorm:"primary_key" json:"-"`
-	UserID       string `gorm:"unique;not null"`
-	Name         string `gorm:"unique;not null"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	No        int    `gorm:"primary_key" json:"-"`
+	UserID    string `gorm:"unique;not null"`
+	Name      string `gorm:"unique;not null"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type UserDetail struct {
+	UserID       string `gorm:"primary_key"`
 	AtCoderID    string
 	CodeforcesID string
 	YukicoderID  string
@@ -88,7 +92,7 @@ func DbConnect(migrate bool) *gorm.DB {
 		}
 
 		if migrate {
-			db.AutoMigrate(&User{}, &Contest{}, &Problem{}, &Note{}, &Tag{}, &TagMap{})
+			db.AutoMigrate(&User{}, &UserDetail{}, &Contest{}, &Problem{}, &Note{}, &Tag{}, &TagMap{})
 		}
 		return db
 	}

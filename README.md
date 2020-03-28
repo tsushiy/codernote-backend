@@ -67,7 +67,10 @@ example: /problems?domain=atcoder
         "Domain": "atcoder",
         "ProblemID": "abc001_1",
         "ContestID": "abc001",
-        "Title": "A. 積雪深差"
+        "Title": "A. 積雪深差",
+        "Slug":"",
+        "FrontendID":"",
+        "Difficulty":"194.98182678222656"
     }
 ]
 ```
@@ -131,7 +134,10 @@ example: /note?noteId=74b3ea1e-b296-4d62-bb9a-81fa5c39dd31
         "Domain": "atcoder",
         "ProblemID": "abc001_1",
         "ContestID": "abc001",
-        "Title": "A. 積雪深差"
+        "Title": "A. 積雪深差",
+        "Slug":"",
+        "FrontendID":"",
+        "Difficulty":"194.98182678222656"
     },
     "User": {
         "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",
@@ -178,7 +184,10 @@ example: /notes?domain=atcoder&userName=tsushiy&tag=tag1&limit=100&skip=0&order=
                 "Domain": "atcoder",
                 "ProblemID": "abc001_1",
                 "ContestID": "abc001",
-                "Title": "A. 積雪深差"
+                "Title": "A. 積雪深差",
+                "Slug":"",
+                "FrontendID":"",
+                "Difficulty":"194.98182678222656"
             },
             "User": {
                 "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",
@@ -246,6 +255,54 @@ Request Body
 }
 ```
 
+### GET /user/setting
+
+ユーザ設定を取得します。
+
+#### Parameters
+
+#### Response
+
+```json
+{
+    "AtCoderID":    "",
+    "CodeforcesID": "",
+    "YukicoderID":  "",
+    "AOJID":        "",
+    "LeetCodeID":   "",
+}
+```
+
+### POST /user/setting
+
+ユーザ設定を変更します。
+
+#### Parameters
+
+Request Body
+
+```json
+{
+    "AtCoderID":    "",
+    "CodeforcesID": "",
+    "YukicoderID":  "",
+    "AOJID":        "",
+    "LeetCodeID":   "",
+}
+```
+
+#### Response
+
+```json
+{
+    "AtCoderID":    "",
+    "CodeforcesID": "",
+    "YukicoderID":  "",
+    "AOJID":        "",
+    "LeetCodeID":   "",
+}
+```
+
 ### GET /user/note
 
 公開されている単一のノートを取得します  
@@ -274,7 +331,10 @@ example: /user/note?noteId=74b3ea1e-b296-4d62-bb9a-81fa5c39dd31
         "Domain": "atcoder",
         "ProblemID": "abc001_1",
         "ContestID": "abc001",
-        "Title": "A. 積雪深差"
+        "Title": "A. 積雪深差",
+        "Slug":"",
+        "FrontendID":"",
+        "Difficulty":"194.98182678222656"
     },
     "User": {
         "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",
@@ -311,7 +371,10 @@ example: /user/note/1
         "Domain": "atcoder",
         "ProblemID": "abc001_1",
         "ContestID": "abc001",
-        "Title": "A. 積雪深差"
+        "Title": "A. 積雪深差",
+        "Slug":"",
+        "FrontendID":"",
+        "Difficulty":"194.98182678222656"
     },
     "User": {
         "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",
@@ -379,7 +442,10 @@ example: /user/notes?domain=atcoder&tag=tag1&limit=100&skip=0&order=-updated
                 "Domain": "atcoder",
                 "ProblemID": "abc001_1",
                 "ContestID": "abc001",
-                "Title": "A. 積雪深差"
+                "Title": "A. 積雪深差",
+                "Slug":"",
+                "FrontendID":"",
+                "Difficulty":"194.98182678222656"
             },
             "User": {
                 "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",

@@ -44,7 +44,7 @@ func (s *server) loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (s *server) usernamePostHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) userNamePostHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
 
 	type changeNameBody struct {
@@ -90,7 +90,25 @@ func (s *server) usernamePostHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (s *server) usersettingPostHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) userSettingGetHandler(w http.ResponseWriter, r *http.Request) {
+	uid := r.Context().Value("uid").(string)
+
+	var detail UserDetail
+	if err := s.db.
+		Where(UserDetail{
+			UserID: uid,
+		}).
+		FirstOrInit(&detail).Error; err != nil {
+		log.Println(err)
+		http.Error(w, "failed to get setting", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(detail)
+}
+
+func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value("uid").(string)
 
 	type changeSettingBody struct {
@@ -107,12 +125,12 @@ func (s *server) usersettingPostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var user User
+	var detail UserDetail
 	if err := s.db.
-		Where(User{
+		Where(UserDetail{
 			UserID: uid,
 		}).
-		Assign(User{
+		Assign(UserDetail{
 			UserID:       uid,
 			AtCoderID:    b.AtCoderID,
 			CodeforcesID: b.CodeforcesID,
@@ -120,14 +138,14 @@ func (s *server) usersettingPostHandler(w http.ResponseWriter, r *http.Request) 
 			AOJID:        b.AOJID,
 			LeetCodeID:   b.LeetCodeID,
 		}).
-		FirstOrCreate(&user).Error; err != nil {
+		FirstOrCreate(&detail).Error; err != nil {
 		log.Println(err)
 		http.Error(w, "failed to change setting", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(detail)
 }
 
 func (s *server) authNoteGetHandler(w http.ResponseWriter, r *http.Request) {
