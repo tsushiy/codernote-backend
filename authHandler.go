@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -123,6 +124,20 @@ func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		http.Error(w, "invalid request body", http.StatusInternalServerError)
 		return
+	}
+
+	elem := reflect.ValueOf(&b).Elem()
+	for i := 0; i < elem.NumField(); i++ {
+		x := elem.Field(i).Interface().(string)
+		if err := validation.Validate(
+			x,
+			validation.Length(0, 100),
+			is.Alphanumeric,
+		); err != nil {
+			log.Println(err)
+			http.Error(w, "invalid id", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	var detail UserDetail
@@ -471,6 +486,10 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "too large tag", http.StatusInternalServerError)
 		return
 	}
+	if isInvalidTag(key) {
+		http.Error(w, "invalid tag", http.StatusInternalServerError)
+		return
+	}
 
 	var problem Problem
 	if err := s.db.
@@ -625,4 +644,15 @@ func genUUID() (string, error) {
 		return "", err
 	}
 	return u.String(), nil
+}
+
+func isInvalidTag(s string) bool {
+	list := []string{"<", ">", "&", "\"", "'", "/", "!", "?", "=", "$"}
+	for _, v := range list {
+		dangerous := strings.Contains(s, v)
+		if dangerous == true {
+			return true
+		}
+	}
+	return false
 }
