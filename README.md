@@ -1,6 +1,6 @@
 # Codernote Backend
 
-Frontend: [codernote-frontend](https://github.com/tsushiy/codernote-frontend)
+Frontend: [codernote-frontend](https://github.com/tsushiy/codernote-frontend)  
 Backend: [codernote-backend](https://github.com/tsushiy/codernote-backend)
 
 ## Develop on your local
