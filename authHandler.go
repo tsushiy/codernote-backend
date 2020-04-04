@@ -53,8 +53,7 @@ func (s *server) userNamePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var b changeNameBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
-		log.Println(err)
-		http.Error(w, "invalid request body", http.StatusInternalServerError)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -67,8 +66,7 @@ func (s *server) userNamePostHandler(w http.ResponseWriter, r *http.Request) {
 		is.Alphanumeric,
 	)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "invalid username", http.StatusInternalServerError)
+		http.Error(w, "invalid username", http.StatusBadRequest)
 		return
 	}
 
@@ -121,8 +119,7 @@ func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	var b changeSettingBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
-		log.Println(err)
-		http.Error(w, "invalid request body", http.StatusInternalServerError)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -134,8 +131,7 @@ func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) 
 			validation.Length(0, 100),
 			is.Alphanumeric,
 		); err != nil {
-			log.Println(err)
-			http.Error(w, "invalid id", http.StatusInternalServerError)
+			http.Error(w, "invalid id", http.StatusBadRequest)
 			return
 		}
 	}
@@ -169,7 +165,7 @@ func (s *server) authNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	noteID := q.Get("noteId")
 	if noteID == "" {
-		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		http.Error(w, "invalid request path", http.StatusBadRequest)
 		return
 	}
 
@@ -179,14 +175,13 @@ func (s *server) authNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 		Preload("User").
 		Preload("Problem").
 		Where(&nfilter).
-		FirstOrInit(&note).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "failed to fetch note", http.StatusInternalServerError)
+		Take(&note).Error; err != nil {
+		http.Error(w, "note not found", http.StatusNotFound)
 		return
 	}
 
 	if note.User.UserID != uid && note.Public == 1 {
-		note = Note{}
+		http.Error(w, "note not found", http.StatusNotFound)
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -199,7 +194,7 @@ func (s *server) myNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
 	if problemNo == 0 {
-		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		http.Error(w, "invalid request path", http.StatusBadRequest)
 		return
 	}
 
@@ -213,9 +208,9 @@ func (s *server) myNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 		Joins("left join users on users.no = notes.user_no").
 		Where(&pfilter).
 		Where(&ufilter).
-		FirstOrInit(&note).Error; err != nil {
+		Take(&note).Error; err != nil {
 		log.Println(err)
-		http.Error(w, "failed to fetch note", http.StatusInternalServerError)
+		http.Error(w, "note not found", http.StatusNotFound)
 		return
 	}
 
@@ -229,7 +224,7 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
 	if problemNo == 0 {
-		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		http.Error(w, "invalid request path", http.StatusBadRequest)
 		return
 	}
 
@@ -239,19 +234,19 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var b notePostBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
-		log.Println(err)
-		http.Error(w, "invalid request body", http.StatusInternalServerError)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if b.Text == "" {
-		http.Error(w, "empty text", http.StatusInternalServerError)
+		http.Error(w, "empty text", http.StatusBadRequest)
 		return
 	}
 	if len(b.Text) > 1024*1024 {
-		http.Error(w, "too large text", http.StatusInternalServerError)
+		http.Error(w, "too large text", http.StatusBadRequest)
 		return
 	}
+
 	var public int
 	if b.Public == true {
 		public = 2
@@ -266,8 +261,7 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 			No: problemNo,
 		}).
 		Take(&problem).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "no problem matched", http.StatusInternalServerError)
+		http.Error(w, "no problem matched", http.StatusBadRequest)
 		return
 	}
 	if err := s.db.
@@ -275,14 +269,15 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 			UserID: uid,
 		}).
 		Take(&user).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "user not registered", http.StatusInternalServerError)
+		http.Error(w, "user not registered", http.StatusBadRequest)
 		return
 	}
 
 	var note Note
 	randID, err := genUUID()
 	if err != nil {
+		log.Println(err)
+		http.Error(w, "failed to create a note", http.StatusInternalServerError)
 		return
 	}
 	if err := s.db.
@@ -303,7 +298,8 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(note)
 }
 
 func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -322,10 +318,11 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 	} else if limit == 0 {
 		limit = 100
 	}
+
 	if order == "" || order == "-updated" {
 		order = "updated_at desc"
 	} else {
-		http.Error(w, "invalid sort order", http.StatusInternalServerError)
+		http.Error(w, "invalid sort order", http.StatusBadRequest)
 		return
 	}
 
@@ -420,7 +417,7 @@ func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
 	if problemNo == 0 {
-		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		http.Error(w, "invalid request path", http.StatusBadRequest)
 		return
 	}
 
@@ -445,6 +442,7 @@ func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to get tags", http.StatusInternalServerError)
 		return
 	}
+
 	type response struct {
 		Tags []string
 	}
@@ -463,7 +461,7 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
 	if problemNo == 0 {
-		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		http.Error(w, "invalid request path", http.StatusBadRequest)
 		return
 	}
 
@@ -472,22 +470,21 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var b tagPostBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
-		log.Println(err)
-		http.Error(w, "invalid request body", http.StatusInternalServerError)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	key := strings.TrimSpace(b.Tag)
 	if key == "" {
-		http.Error(w, "empty tag", http.StatusInternalServerError)
+		http.Error(w, "empty tag", http.StatusBadRequest)
 		return
 	}
 	if len(key) > 200 {
-		http.Error(w, "too large tag", http.StatusInternalServerError)
+		http.Error(w, "too large tag", http.StatusBadRequest)
 		return
 	}
 	if isInvalidTag(key) {
-		http.Error(w, "invalid tag", http.StatusInternalServerError)
+		http.Error(w, "invalid tag", http.StatusBadRequest)
 		return
 	}
 
@@ -497,8 +494,7 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 			No: problemNo,
 		}).
 		Take(&problem).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "no problem matched", http.StatusInternalServerError)
+		http.Error(w, "no problem matched", http.StatusBadRequest)
 		return
 	}
 	var user User
@@ -507,8 +503,7 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 			UserID: uid,
 		}).
 		Take(&user).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "user is not registered", http.StatusInternalServerError)
+		http.Error(w, "user is not registered", http.StatusBadRequest)
 		return
 	}
 	var tag Tag
@@ -524,6 +519,8 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 	var note Note
 	randID, err := genUUID()
 	if err != nil {
+		log.Println(err)
+		http.Error(w, "failed to create a note", http.StatusInternalServerError)
 		return
 	}
 	if err := s.db.
@@ -560,7 +557,7 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
 	if problemNo == 0 {
-		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		http.Error(w, "invalid request path", http.StatusBadRequest)
 		return
 	}
 
@@ -569,18 +566,17 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var b tagDeleteBody
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
-		log.Println(err)
-		http.Error(w, "invalid request body", http.StatusInternalServerError)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	key := strings.TrimSpace(b.Tag)
 	if key == "" {
-		http.Error(w, "empty tag", http.StatusInternalServerError)
+		http.Error(w, "empty tag", http.StatusBadRequest)
 		return
 	}
 	if len(key) > 200 {
-		http.Error(w, "too large tag", http.StatusInternalServerError)
+		http.Error(w, "too large tag", http.StatusBadRequest)
 		return
 	}
 
@@ -590,8 +586,7 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 			Key: key,
 		}).
 		Take(&tag).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "tag does not exist", http.StatusInternalServerError)
+		http.Error(w, "tag does not exist", http.StatusBadRequest)
 		return
 	}
 
@@ -604,8 +599,7 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		Where(&pfilter).
 		Where(&ufilter).
 		Take(&note).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "note does not exist", http.StatusInternalServerError)
+		http.Error(w, "note does not exist", http.StatusBadRequest)
 		return
 	}
 	var tagMap TagMap
@@ -615,8 +609,7 @@ func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 			TagNo:  tag.No,
 		}).
 		Take(&tagMap).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "note does not have the tag", http.StatusInternalServerError)
+		http.Error(w, "note does not have the tag", http.StatusBadRequest)
 		return
 	}
 	if err := s.db.Delete(&tagMap).Error; err != nil {

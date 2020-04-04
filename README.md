@@ -408,7 +408,31 @@ Request Body
 
 #### Response
 
-* 200: OK
+```json
+{
+    "ID": "74b3ea1e-b296-4d62-bb9a-81fa5c39dd31",
+    "CreatedAt": "2020-03-15T11:38:48.04207Z",
+    "UpdatedAt": "2020-03-15T11:39:50.905595Z",
+    "Text": "sample text.",
+    "Problem": {
+        "No": 1,
+        "Domain": "atcoder",
+        "ProblemID": "abc001_1",
+        "ContestID": "abc001",
+        "Title": "A. 積雪深差",
+        "Slug":"",
+        "FrontendID":"",
+        "Difficulty":"194.98182678222656"
+    },
+    "User": {
+        "UserID": "fgCE5ZcTeOT8hmEmNnXvBb4mhEg1",
+        "Name": "tsushiy",
+        "CreatedAt": "2020-03-15T10:36:11.273197Z",
+        "UpdatedAt": "2020-03-15T11:17:48.712348Z"
+    },
+    "Public": 2  // 1 if private, otherwise 2
+}
+```
 
 ### GET /user/notes
 

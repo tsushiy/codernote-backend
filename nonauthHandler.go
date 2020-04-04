@@ -52,7 +52,7 @@ func (s *server) contestsGetHandler(w http.ResponseWriter, r *http.Request) {
 	} else if order == "started" {
 		order = "start_time_seconds asc"
 	} else {
-		http.Error(w, "invalid sort order", http.StatusInternalServerError)
+		http.Error(w, "invalid sort order", http.StatusBadRequest)
 		return
 	}
 
@@ -77,7 +77,7 @@ func (s *server) publicNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	noteID := q.Get("noteId")
 	if noteID == "" {
-		http.Error(w, "invalid request path", http.StatusInternalServerError)
+		http.Error(w, "invalid request path", http.StatusBadRequest)
 		return
 	}
 
@@ -87,14 +87,14 @@ func (s *server) publicNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 		Preload("User").
 		Preload("Problem").
 		Where(&nfilter).
-		FirstOrInit(&note).Error; err != nil {
-		log.Println(err)
-		http.Error(w, "failed to fetch note", http.StatusInternalServerError)
+		Take(&note).Error; err != nil {
+		http.Error(w, "note not found", http.StatusNotFound)
 		return
 	}
 
 	if note.Public == 1 {
-		note = Note{}
+		http.Error(w, "note not found", http.StatusNotFound)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -117,10 +117,11 @@ func (s *server) publicNoteListGetHandler(w http.ResponseWriter, r *http.Request
 	} else if limit == 0 {
 		limit = 100
 	}
+
 	if order == "" || order == "-updated" {
 		order = "updated_at desc"
 	} else {
-		http.Error(w, "invalid sort order", http.StatusInternalServerError)
+		http.Error(w, "invalid sort order", http.StatusBadRequest)
 		return
 	}
 
