@@ -302,6 +302,39 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(note)
 }
 
+func (s *server) myNoteDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	uid := r.Context().Value(uidKey).(string)
+
+	vars := mux.Vars(r)
+	problemNo, _ := strconv.Atoi(vars["problemNo"])
+	if problemNo == 0 {
+		http.Error(w, "invalid request path", http.StatusBadRequest)
+		return
+	}
+
+	pfilter := Problem{No: problemNo}
+	ufilter := User{UserID: uid}
+	var note Note
+	if err := s.db.
+		Joins("left join problems on problems.no = notes.problem_no").
+		Joins("left join users on users.no = notes.user_no").
+		Where(&pfilter).
+		Where(&ufilter).
+		Take(&note).Error; err != nil {
+		log.Println(err)
+		http.Error(w, "note does not exist", http.StatusBadRequest)
+		return
+	}
+
+	if err := s.db.Delete(&note).Error; err != nil {
+		log.Println(err)
+		http.Error(w, "failed to delete note", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 	uid := r.Context().Value(uidKey).(string)
 

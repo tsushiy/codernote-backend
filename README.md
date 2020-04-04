@@ -434,6 +434,20 @@ Request Body
 }
 ```
 
+### DELETE /user/note/{ProblemNo}
+
+ログインしているユーザの指定された単一のノートを削除します。
+
+#### Parameters
+
+Path
+
+- ProblemNo (required)
+
+#### Response
+
+* 200: OK
+
 ### GET /user/notes
 
 ログインしているユーザのノートの一覧を取得します。

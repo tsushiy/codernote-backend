@@ -42,6 +42,7 @@ func main() {
 	authRouter.HandleFunc("/user/note", s.authNoteGetHandler).Methods("GET")
 	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}", s.myNoteGetHandler).Methods("GET")
 	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}", s.myNotePostHandler).Methods("POST")
+	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}", s.myNoteDeleteHandler).Methods("DELETE")
 	authRouter.HandleFunc("/user/notes", s.myNoteListGetHandler).Methods("GET")
 	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}/tag", s.tagGetHandler).Methods("GET")
 	authRouter.HandleFunc("/user/note/{problemNo:[0-9]+}/tag", s.tagPostHandler).Methods("POST")
