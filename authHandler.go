@@ -24,7 +24,7 @@ const (
 )
 
 func (s *server) loginPostHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	var user User
 	if err := s.db.
@@ -46,7 +46,7 @@ func (s *server) loginPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) userNamePostHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	type changeNameBody struct {
 		Name string
@@ -92,7 +92,7 @@ func (s *server) userNamePostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) userSettingGetHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	var detail UserDetail
 	if err := s.db.
@@ -110,7 +110,7 @@ func (s *server) userSettingGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	type changeSettingBody struct {
 		AtCoderID    string
@@ -164,7 +164,7 @@ func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *server) authNoteGetHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 	q := r.URL.Query()
 
 	noteID := q.Get("noteId")
@@ -194,7 +194,7 @@ func (s *server) authNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) myNoteGetHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
@@ -224,7 +224,7 @@ func (s *server) myNoteGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
@@ -307,7 +307,7 @@ func (s *server) myNotePostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	q := r.URL.Query()
 	domain := q.Get("domain")
@@ -415,7 +415,7 @@ func (s *server) myNoteListGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
@@ -458,7 +458,7 @@ func (s *server) tagGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
@@ -555,7 +555,7 @@ func (s *server) tagPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(uidKey).(string)
 
 	vars := mux.Vars(r)
 	problemNo, _ := strconv.Atoi(vars["problemNo"])
@@ -649,8 +649,8 @@ func genUUID() (string, error) {
 func isInvalidTag(s string) bool {
 	list := []string{"<", ">", "&", "\"", "'", "/", "!", "?", "=", "$"}
 	for _, v := range list {
-		dangerous := strings.Contains(s, v)
-		if dangerous == true {
+		isDangerous := strings.Contains(s, v)
+		if isDangerous == true {
 			return true
 		}
 	}

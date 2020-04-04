@@ -13,9 +13,15 @@ import (
 	"github.com/dgrijalva/jwt-go/request"
 )
 
+type key int
+
 const (
 	audience = "codernote-project"
 	issuer   = "https://securetoken.google.com/codernote-project"
+)
+
+const (
+	uidKey key = iota
 )
 
 func authMiddleware(next http.Handler) http.Handler {
@@ -52,8 +58,7 @@ func authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if !isValid(token) {
-			log.Println(errors.New("invalid token"))
+		if !isValidToken(token) {
 			http.Error(w, "invalid token", http.StatusUnauthorized)
 			return
 		}
@@ -61,9 +66,10 @@ func authMiddleware(next http.Handler) http.Handler {
 		claims := token.Claims.(jwt.MapClaims)
 		uid := claims["sub"].(string)
 		if uid == "" {
+			http.Error(w, "invalid token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), "uid", uid)
+		ctx := context.WithValue(r.Context(), uidKey, uid)
 		r = r.WithContext(ctx)
 
 		// log.Printf("Got a valid token. Header: %v Claims: %v", token.Header, token.Claims)
@@ -99,7 +105,7 @@ func fetchPublicKeyMap() (km publicKeyMap, err error) {
 	return keyMap, nil
 }
 
-func isValid(token *jwt.Token) bool {
+func isValidToken(token *jwt.Token) bool {
 	now := time.Now().Unix()
 	if !token.Valid {
 		return false
