@@ -44,8 +44,8 @@ type Problem struct {
 	ProblemID  string
 	ContestID  string
 	Title      string
-	Slug       string
-	FrontendID string
+	Slug       string `json:"Slug,omitempty"`
+	FrontendID string `json:"FrontendID,omitempty"`
 	Difficulty string
 }
 
