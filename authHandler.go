@@ -141,13 +141,13 @@ func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) 
 		Where(UserDetail{
 			UserID: uid,
 		}).
-		Assign(UserDetail{
-			UserID:       uid,
-			AtCoderID:    b.AtCoderID,
-			CodeforcesID: b.CodeforcesID,
-			YukicoderID:  b.YukicoderID,
-			AOJID:        b.AOJID,
-			LeetCodeID:   b.LeetCodeID,
+		Assign(map[string]interface{}{
+			"user_id":       uid,
+			"at_coder_id":   b.AtCoderID,
+			"codeforces_id": b.CodeforcesID,
+			"yukicoder_id":  b.YukicoderID,
+			"aoj_id":        b.AOJID,
+			"leet_code_id":  b.LeetCodeID,
 		}).
 		FirstOrCreate(&detail).Error; err != nil {
 		log.Println(err)
