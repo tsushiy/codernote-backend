@@ -15,6 +15,7 @@ const (
 	atcoderProblemsURL       = "https://kenkoooo.com/atcoder/resources/merged-problems.json"
 	atcoderContestsURL       = "https://kenkoooo.com/atcoder/resources/contests.json"
 	atcoderContestProblemURL = "https://kenkoooo.com/atcoder/resources/contest-problem.json"
+	atcoderDifficultyURL     = "https://kenkoooo.com/atcoder/resources/problem-models.json"
 )
 
 var atcoderContestProblemMap = make(map[string][]Problem)
@@ -55,19 +56,46 @@ type atcoderContestProblem struct {
 	ProblemID string `json:"problem_id"`
 }
 
+type atcoderDifficulty struct {
+	Slope            float64 `json:"slope"`
+	Intercept        float64 `json:"intercept"`
+	Variance         float64 `json:"variance"`
+	Difficulty       float64 `json:"difficulty"`
+	Discrimination   float64 `json:"discrimination"`
+	IrtLoglikelihood float64 `json:"irt_loglikelihood"`
+	IrtUsers         int     `json:"irt_users"`
+	IsExperimental   bool    `json:"is_experimental"`
+}
+
 func updateAtcoderProblems(db *gorm.DB) error {
 	log.Println("Start updating AtCoder problem info")
-	body, err := fetchAPI(atcoderProblemsURL)
-	if err != nil {
-		return err
-	}
 	var problems []atcoderProblem
-	if err := json.Unmarshal(body, &problems); err != nil {
-		return err
+	{
+		body, err := fetchAPI(atcoderProblemsURL)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal(body, &problems); err != nil {
+			return err
+		}
+	}
+	var difficulties map[string]atcoderDifficulty
+	{
+		body, err := fetchAPI(atcoderDifficultyURL)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal(body, &difficulties); err != nil {
+			return err
+		}
 	}
 
 	for _, v := range problems {
 		var problem Problem
+		var difficulty float64
+		if d, ok := difficulties[v.ProblemID]; ok {
+			difficulty = d.Difficulty
+		}
 		if err := db.
 			Where(Problem{
 				Domain:    atcoderDomain,
@@ -78,7 +106,7 @@ func updateAtcoderProblems(db *gorm.DB) error {
 				ProblemID:  v.ProblemID,
 				ContestID:  v.ContestID,
 				Title:      v.Title,
-				Difficulty: strconv.FormatFloat(v.Predict, 'f', -1, 64),
+				Difficulty: strconv.FormatFloat(difficulty, 'f', -1, 64),
 			}).
 			FirstOrCreate(&problem).Error; err != nil {
 			return err
