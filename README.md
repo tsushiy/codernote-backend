@@ -21,7 +21,7 @@ go run cmd/main.go
 
 ルート以下のAPIサーバと`crawler/`以下のCrawlerは別モジュールになっています。  
 CrawlerはAPIサーバ側のdbパッケージに依存しているので、バージョン管理に注意してください。  
-例えばDBの構成を変更する場合には、`crawler/go.mod`に以下のように追記してローカルパッケージを用いる、といった対応をしてください。
+例えば、DBの構成を変更したり、DBの接続先を変更してクローラーを実行する場合には、`crawler/go.mod`に以下のように追記してローカルパッケージを用いる、といった対応をしてください。
 
 ```
 replace github.com/tsushiy/codernote-backend => ../
