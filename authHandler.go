@@ -6,12 +6,12 @@ import (
 	"math/rand"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 
@@ -57,13 +57,12 @@ func (s *server) userNamePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// username must be between 3 and 30 alphanumeric characters
 	name := strings.TrimSpace(b.Name)
 	err := validation.Validate(
 		name,
 		validation.Required,
 		validation.Length(3, 30),
-		is.Alphanumeric,
+		validation.Match(regexp.MustCompile("^[a-zA-Z0-9_]+$")),
 	)
 	if err != nil {
 		http.Error(w, "invalid username", http.StatusBadRequest)
@@ -129,7 +128,7 @@ func (s *server) userSettingPostHandler(w http.ResponseWriter, r *http.Request) 
 		if err := validation.Validate(
 			x,
 			validation.Length(0, 100),
-			is.Alphanumeric,
+			validation.Match(regexp.MustCompile("^[a-zA-Z0-9_]+$")),
 		); err != nil {
 			http.Error(w, "invalid id", http.StatusBadRequest)
 			return
