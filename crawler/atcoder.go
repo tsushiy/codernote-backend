@@ -93,7 +93,7 @@ func updateAtcoderProblems(db *gorm.DB) error {
 
 	for _, v := range problems {
 		var problem Problem
-		var difficulty string
+		var difficulty = "-"
 		if d, ok := difficulties[v.ProblemID]; ok {
 			if d.Difficulty == 0 {
 				difficulty = "-"
