@@ -3,6 +3,7 @@ package crawler
 import (
 	"encoding/json"
 	"log"
+	"math"
 	"sort"
 	"strconv"
 
@@ -92,9 +93,13 @@ func updateAtcoderProblems(db *gorm.DB) error {
 
 	for _, v := range problems {
 		var problem Problem
-		var difficulty float64
+		var difficulty string
 		if d, ok := difficulties[v.ProblemID]; ok {
-			difficulty = d.Difficulty
+			if d.Difficulty >= 400 {
+				difficulty = strconv.Itoa(int(d.Difficulty))
+			} else {
+				difficulty = strconv.Itoa(int(400 / math.Exp(1.0-d.Difficulty/400)))
+			}
 		}
 		if err := db.
 			Where(Problem{
@@ -106,7 +111,7 @@ func updateAtcoderProblems(db *gorm.DB) error {
 				ProblemID:  v.ProblemID,
 				ContestID:  v.ContestID,
 				Title:      v.Title,
-				Difficulty: strconv.FormatFloat(difficulty, 'f', -1, 64),
+				Difficulty: difficulty,
 			}).
 			FirstOrCreate(&problem).Error; err != nil {
 			return err
