@@ -95,7 +95,9 @@ func updateAtcoderProblems(db *gorm.DB) error {
 		var problem Problem
 		var difficulty string
 		if d, ok := difficulties[v.ProblemID]; ok {
-			if d.Difficulty >= 400 {
+			if d.Difficulty == 0 {
+				difficulty = "-"
+			} else if d.Difficulty >= 400 {
 				difficulty = strconv.Itoa(int(d.Difficulty))
 			} else {
 				difficulty = strconv.Itoa(int(400 / math.Exp(1.0-d.Difficulty/400)))
