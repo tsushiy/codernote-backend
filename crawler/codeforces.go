@@ -138,6 +138,10 @@ func updateCodeforcesProblems(db *gorm.DB) error {
 	for _, v := range problems.Result.Problems {
 		var problem Problem
 		contestID := strconv.Itoa(v.ContestID)
+		difficulty := "-"
+		if v.Rating != 0 {
+			difficulty = strconv.Itoa(v.Rating)
+		}
 		if err := db.
 			Where(Problem{
 				Domain:    codeforcesDomain,
@@ -149,7 +153,7 @@ func updateCodeforcesProblems(db *gorm.DB) error {
 				ProblemID:  v.Index,
 				ContestID:  contestID,
 				Title:      v.Name,
-				Difficulty: strconv.Itoa(v.Rating),
+				Difficulty: difficulty,
 			}).
 			FirstOrCreate(&problem).Error; err != nil {
 			return err
