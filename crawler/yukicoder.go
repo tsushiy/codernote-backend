@@ -36,7 +36,7 @@ type yukicoderContest struct {
 	ProblemIDList []int     `json:"ProblemIdList"`
 }
 
-var yukicoderProblemNoMap = make(map[string]int)
+var yukicoderProblemNoMap map[string]int
 
 func updateYukicoderProblems(db *gorm.DB) error {
 	log.Println("Start updating yukicoder problem info")
@@ -122,6 +122,7 @@ func updateYukicoderContests(db *gorm.DB) error {
 }
 
 func updateYukicoder(db *gorm.DB) error {
+	yukicoderProblemNoMap = make(map[string]int)
 	if err := updateYukicoderProblems(db); err != nil {
 		return err
 	}

@@ -19,7 +19,7 @@ const (
 	atcoderDifficultyURL     = "https://kenkoooo.com/atcoder/resources/problem-models.json"
 )
 
-var atcoderContestProblemMap = make(map[string][]Problem)
+var atcoderContestProblemMap map[string][]Problem
 
 type atcoderProblem struct {
 	ProblemID            string      `json:"id"`
@@ -196,6 +196,7 @@ func updateAtcoderContests(db *gorm.DB) error {
 }
 
 func updateAtcoder(db *gorm.DB) error {
+	atcoderContestProblemMap = make(map[string][]Problem)
 	if err := updateAtcoderProblems(db); err != nil {
 		return err
 	}

@@ -19,7 +19,7 @@ const (
 )
 
 var codeforcesProblems codeforcesProblem
-var codeforcesContestProblemMap = make(map[string][]Problem)
+var codeforcesContestProblemMap map[string][]Problem
 
 type codeforcesProblem struct {
 	Status string `json:"status"`
@@ -292,6 +292,8 @@ func isDiv3(title string) bool {
 }
 
 func updateCodeforces(db *gorm.DB) error {
+	codeforcesProblems = codeforcesProblem{}
+	codeforcesContestProblemMap = make(map[string][]Problem)
 	if err := updateCodeforcesProblems(db); err != nil {
 		return err
 	}
